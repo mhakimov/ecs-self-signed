@@ -21,7 +21,9 @@ jobs:
 
     - uses: actions/checkout@v4
     - name: Checkout Code
-      run: docker build -t hello-world .
+      run: |
+        ls
+        docker build -t hello-world .
         
     - name: Configure AWS CLI
       uses: aws-actions/configure-aws-credentials@v3.0.2
