@@ -46,23 +46,35 @@ jobs:
         REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
         echo $REPO_URI
 
-  ci:
-      runs-on: ubuntu-latest
-      env:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2 
-      steps:
-      - uses: docker-practice/actions-setup-docker@master
-        timeout-minutes: 12
-      - run: |
-          set -x
-  
-          docker version
-  
-        #   docker run --rm hello-world
-    
-      - name: Push image to repo
-        run: |
+    - name: Install docker
+      uses: docker-practice/actions-setup-docker@master
+    #   run: |
+    #       set -x
+    #       docker version
+        
+    - name: Push image to repo
+      run: |
+          docker version        
           REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
           echo $REPO_URI
+
+#   ci:
+#       runs-on: ubuntu-latest
+#       env:
+#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         aws-region: eu-west-2 
+#       steps:
+#       - uses: docker-practice/actions-setup-docker@master
+#         timeout-minutes: 12
+#       - run: |
+#           set -x
+  
+#           docker version
+  
+#         #   docker run --rm hello-world
+    
+#       - name: Push image to repo
+#         run: |
+#           REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+#           echo $REPO_URI
