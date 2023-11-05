@@ -9,7 +9,7 @@ terraform {
 
   backend "s3" {
        bucket = "ecs-self-signed-remote-state"
-       key    = "`terraform.tfstate"
+       key    = "terraform.tfstate"
        region = "eu-west-2"
    }
 }

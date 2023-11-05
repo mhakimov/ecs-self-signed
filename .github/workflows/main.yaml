@@ -43,3 +43,20 @@ jobs:
     - name: Apply Terraform Changes
       run: |
         terraform apply -auto-approve 
+
+  ci:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 12
+      - run: |
+          set -x
+  
+          docker version
+  
+        #   docker run --rm hello-world
+    
+      - name: Push image to repo
+        run: |
+          REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+          echo $REPO_URI
