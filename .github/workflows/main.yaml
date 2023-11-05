@@ -1,0 +1,48 @@
+name: Deploy Infrastructure
+
+# on: [push]
+on: 
+  workflow_dispatch:
+jobs:
+  deploy:
+    name: Deploy Site
+    runs-on: ubuntu-latest
+    env:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2 
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+
+    - name: Set up Terraform Environment
+      run: |
+        wget https://releases.hashicorp.com/terraform/0.15.5/terraform_0.15.5_linux_amd64.zip
+        unzip terraform_0.15.5_linux_amd64.zip
+        chmod +x terraform
+        mv terraform /usr/local/bin/
+        
+    - name: Configure AWS CLI
+      uses: aws-actions/configure-aws-credentials@v3.0.2
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: eu-west-2 
+
+    - name: Initialize Terraform
+      run: |
+        terraform init -upgrade -backend-config="bucket=ecs-self-signed-remote-state" \
+                        -backend-config="key=terraform.tfstate" \
+                        -backend-config="region=eu-west-2"
+
+    - name: Terraform Validate
+      run: terraform validate
+        
+    - name: Apply Terraform Changes
+      run: |
+        # TF_VAR_domain_name=${{ secrets.TF_VAR_DOMAIN_NAME }} \
+        # TF_VAR_hosted_zone_id=${{ vars.TF_VAR_HOSTED_ZONE_ID }} \
+        # TF_VAR_id_rsa_pub=$TF_VAR_ID_RSA_PUB \
+        terraform apply -auto-approve 
