@@ -7,3 +7,12 @@ resource "aws_ecr_repository" "ecr_repo" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecs_cluster" "cluster" {
+  name = "hello-fargate"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
