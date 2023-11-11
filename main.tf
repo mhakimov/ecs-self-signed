@@ -1,55 +1,39 @@
+locals {
+  ssh_port     = 22
+  http_port    = 80
+  https_port   = 443
+  any_port     = 0
+  all_ips      = ["0.0.0.0/0"]
+  tcp_protocol = "tcp"
+}
 
-resource "aws_ecr_repository" "ecr_repo" {
-  name                 = "fargate-repo"
-  image_tag_mutability = "MUTABLE"
+resource "aws_lb" "onyx" {
+  name               = "alb-onyx"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.lb_sg.id]
+  subnets            = [aws_subnet.subnet_aza.id, aws_subnet.subnet_azb.id]
+}
 
-  image_scanning_configuration {
-    scan_on_push = true
+resource "aws_lb_listener" "alb_listener_http" {
+  load_balancer_arn = aws_lb.onyx.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.ecs_target_group.arn
+    type             = "forward"
   }
 }
 
-resource "aws_ecs_cluster" "cluster" {
-  name = "hello-fargate"
+resource "aws_lb_target_group" "ecs_target_group" {
+  name        = "precious-target-group"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.ecs_ss_vpc.id
+  target_type = "ip"
 
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
+  health_check {
+    path = "/"
   }
 }
-
-resource "aws_ecs_task_definition" "my_task" {
-  family                   = "sample-fargate"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-
-  cpu = "256"    # CPU units
-  memory = "512" # GB
-
-  container_definitions = jsonencode([
-        {
-            name = "fargate-app", 
-            image = "public.ecr.aws/docker/library/httpd:latest", 
-            portMappings = [
-                {
-                    containerPort = 80, 
-                    hostPort = 80, 
-                    protocol = "tcp"
-                }
-            ], 
-            essential = true, 
-            entryPoint = [
-                "sh",
-		"-c"
-            ], 
-            command = [
-                "/bin/sh -c \"echo '<html> <head> <title>Amazon ECS Sample App</title> <style>body {margin-top: 40px; background-color: #333;} </style> </head><body> <div style=color:white;text-align:center> <h1>Amazon ECS Sample App</h1> <h2>Congratulations!</h2> <p>Your application is now running on a container in Amazon ECS.</p> </div></body></html>' >  /usr/local/apache2/htdocs/index.html && httpd-foreground\""
-            ]
-        }
-    ])
-}
-
-
-
-
-
-
