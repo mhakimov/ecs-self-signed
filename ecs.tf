@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "my_task" {
     #   image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/fargate-repo:latest",
     image        = "${aws_ecr_repository.ecr_repo.repository_url}:latest",
     name         = "fargate-app",
-    portMappings = [{ containerPort = 8081 }],
+    portMappings = [{ containerPort = 80 }],
   }])
 }
 
@@ -44,7 +44,7 @@ resource "aws_ecs_service" "bar" {
   network_configuration {
     subnets         = [aws_subnet.subnet_aza.id, aws_subnet.subnet_azb.id]
     security_groups = [aws_security_group.ecs_security_group.id]
-    # assign_public_ip = true
+    assign_public_ip = true
   }
   launch_type = "FARGATE"
 
@@ -60,7 +60,7 @@ resource "aws_ecs_service" "bar" {
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
     container_name   = "fargate-app"
-    container_port   = 8081
+    container_port   = 80
   }
 
   #   placement_constraints {
