@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "my_task" {
     #   image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/fargate-repo:latest",
     image        = "${aws_ecr_repository.ecr_repo.repository_url}:latest",
     name         = "fargate-app",
-    portMappings = [{ containerPort = 80 }],
+    portMappings = [{ containerPort = 8081 }],
   }])
 }
 
@@ -60,7 +60,7 @@ resource "aws_ecs_service" "bar" {
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
     container_name   = "fargate-app"
-    container_port   = 80
+    container_port   = 8081
   }
 
   #   placement_constraints {
