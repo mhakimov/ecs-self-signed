@@ -12,7 +12,7 @@ resource "aws_lb" "onyx" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
-  subnets            = [aws_subnet.subnet_aza.id, aws_subnet.subnet_azb.id]
+  subnets            = [aws_subnet.public_aza.id, aws_subnet.public_azb.id]
 }
 
 resource "aws_lb_listener" "alb_listener_http" {
@@ -55,6 +55,18 @@ resource "aws_route53_record" "https_record" {
   type            = tolist(aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_type
   zone_id         = var.hosted_zone_id
   ttl             = 60
+}
+
+resource "aws_route53_record" "domain_record" {
+  # zone_id = aws_route53_zone.domain_zone.zone_id
+  zone_id = var.hosted_zone_id
+  name    = var.domain_name
+  type    = "A"
+  alias {
+    name                   = aws_lb.onyx.dns_name
+    zone_id                = aws_lb.onyx.zone_id
+    evaluate_target_health = true
+  }
 }
 
 resource "aws_acm_certificate_validation" "webapp_cert_validation" {

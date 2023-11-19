@@ -7,6 +7,15 @@ resource "aws_ecr_repository" "ecr_repo" {
   }
 }
 
+# resource "aws_ecr_repository" "envoy_repo" {
+#   name                 = "envoy-repo"
+#   image_tag_mutability = "MUTABLE"
+
+#   image_scanning_configuration {
+#     scan_on_push = true
+#   }
+# }
+
 resource "aws_ecs_cluster" "cluster" {
   name = "hello-fargate"
   setting {
@@ -42,7 +51,7 @@ resource "aws_ecs_service" "bar" {
   task_definition = aws_ecs_task_definition.my_task.arn
   desired_count   = 2
   network_configuration {
-    subnets         = [aws_subnet.subnet_aza.id, aws_subnet.subnet_azb.id]
+    subnets         = [aws_subnet.private_aza.id, aws_subnet.private_azb.id]
     security_groups = [aws_security_group.ecs_security_group.id]
     assign_public_ip = true
   }
