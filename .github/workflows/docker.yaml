@@ -23,7 +23,15 @@ jobs:
     - name: Checkout Code
       run: |
         ls
-        docker build -t hello-world .
+        echo "the region is $AWS_REGION"
+        APP_REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+        PROXY_REPO_URI=$(aws ecr describe-repositories --repository-names envoy-repo --query 'repositories[].repositoryUri' --output text)
+          
+        docker build -t ${PROXY_REPO_URI} -f Dockerfile-proxy ./docker
+        docker build -t ${APP_REPO_URI} -f Dockerfile-app ./docker
+
+
+        # docker build -t hello-world .
         
     - name: Configure AWS CLI
       uses: aws-actions/configure-aws-credentials@v3.0.2
@@ -38,11 +46,23 @@ jobs:
     - name: Push image to repo   
       run: |
           echo "building image"
-          docker version        
-          REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-          echo $REPO_URI
-          docker tag hello-world $REPO_URI
-          echo "the region is $AWS_REGION"
+          docker version
+          docker images | grep eu-west-2
+          APP_REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+          PROXY_REPO_URI=$(aws ecr describe-repositories --repository-names envoy-repo --query 'repositories[].repositoryUri' --output text)
+          echo $APP_REPO_URI
+          echo $PROXY_REPO_URI
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
-          docker push $REPO_URI
+          docker push ${PROXY_REPO_URI}
+          docker push ${APP_REPO_URI}
+
+
+
+
+          # REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+          # echo $REPO_URI
+          # docker tag hello-world $REPO_URI
+          # echo "the region is $AWS_REGION"
+          # aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
+          # docker push $REPO_URI
 
