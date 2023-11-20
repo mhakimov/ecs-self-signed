@@ -27,8 +27,8 @@ jobs:
         APP_REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
         PROXY_REPO_URI=$(aws ecr describe-repositories --repository-names envoy-repo --query 'repositories[].repositoryUri' --output text)
           
-        docker build -t ${PROXY_REPO_URI} -f Dockerfile-proxy ./docker
-        docker build -t ${APP_REPO_URI} -f Dockerfile-app ./docker
+        docker build -t ${PROXY_REPO_URI} -f ./docker/Dockerfile-proxy ./docker
+        docker build -t ${APP_REPO_URI} -f docker/Dockerfile-app ./docker
 
 
         # docker build -t hello-world .
