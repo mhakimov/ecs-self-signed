@@ -9,3 +9,11 @@ variable "domain_name" {
 variable "hosted_zone_id" {
   description = "Id of the hosted zone you have created"
 }
+
+variable "service_name" {
+  default = "ecs-encryption"
+}
+
+variable "container_name" {
+  default = "envoy"
+}

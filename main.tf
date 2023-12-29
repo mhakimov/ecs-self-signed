@@ -15,16 +15,16 @@ resource "aws_lb" "onyx" {
   subnets            = [aws_subnet.public_aza.id, aws_subnet.public_azb.id]
 }
 
-resource "aws_lb_listener" "alb_listener_http" {
-  load_balancer_arn = aws_lb.onyx.arn
-  port              = 80
-  protocol          = "HTTP"
+# resource "aws_lb_listener" "alb_listener_http" {
+#   load_balancer_arn = aws_lb.onyx.arn
+#   port              = 80
+#   protocol          = "HTTP"
 
-  default_action {
-    target_group_arn = aws_lb_target_group.ecs_target_group.arn
-    type             = "forward"
-  }
-}
+#   default_action {
+#     target_group_arn = aws_lb_target_group.ecs_target_group.arn
+#     type             = "forward"
+#   }
+# }
 
 resource "aws_lb_listener" "alb_listener_https" {
   load_balancer_arn = aws_lb.onyx.arn
@@ -48,11 +48,19 @@ resource "aws_acm_certificate" "webapp_cert" {
   }
 }
 
+# data "aws_acm_certificate" "webapp_cert" {
+#   domain   = var.domain_name
+#   statuses = ["ISSUED"]
+# }
+
 resource "aws_route53_record" "https_record" {
   allow_overwrite = true
   name            = tolist(aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_name
   records         = [tolist(aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_value]
   type            = tolist(aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_type
+  # name            = tolist(data.aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_name
+  # records         = [tolist(data.aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_value]
+  # type            = tolist(data.aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_type
   zone_id         = var.hosted_zone_id
   ttl             = 60
 }
@@ -75,13 +83,15 @@ resource "aws_acm_certificate_validation" "webapp_cert_validation" {
 }
 
 resource "aws_lb_target_group" "ecs_target_group" {
-  name        = "precious-target-group"
-  port        = 80
-  protocol    = "HTTP"
+  name        = "https-target"
+  port        = 443
+  protocol    = "HTTPS"
   vpc_id      = aws_vpc.ecs_ss_vpc.id
   target_type = "ip"
 
   health_check {
-    path = "/"
+    # path = "/service"
+        path = "/"
+
   }
 }

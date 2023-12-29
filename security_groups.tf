@@ -3,17 +3,25 @@ resource "aws_security_group" "lb_sg" {
   vpc_id      = aws_vpc.ecs_ss_vpc.id
   description = "security group for alb"
 
-  ingress {
-    from_port   = local.http_port
-    to_port     = local.http_port
-    protocol    = local.tcp_protocol
-    cidr_blocks = local.all_ips
-  }
+  //aws suggests opening all ports for the lb. Can change it back to 443 later
+  # ingress {
+  #   from_port   = local.http_port
+  #   to_port     = local.http_port
+  #   protocol    = local.tcp_protocol
+  #   cidr_blocks = local.all_ips
+  # }
+
+  # ingress {
+  #   from_port   = local.https_port
+  #   to_port     = local.https_port
+  #   protocol    = local.tcp_protocol
+  #   cidr_blocks = local.all_ips
+  # }
 
   ingress {
-    from_port   = local.https_port
-    to_port     = local.https_port
-    protocol    = local.tcp_protocol
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = local.all_ips
   }
 
@@ -67,4 +75,9 @@ resource "aws_security_group" "ecs_security_group" {
     Name = "ecs-security-group"
     Made = "terraform"
   }
+}
+
+output "sg_lb_id" {
+  value = aws_security_group.lb_sg.id
+  
 }
