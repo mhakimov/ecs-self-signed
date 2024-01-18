@@ -1,12 +1,8 @@
 name: Deploy Infrastructure
 
 # on: [push]
-# on: 
-#   workflow_dispatch:
-on:
-  push:
-    branches:
-      - node-webapp
+on: 
+  workflow_dispatch:
 jobs:
   deploy:
     name: Deploy Terraform infrastructure
@@ -60,11 +56,11 @@ jobs:
       run: |
           echo "building image"
           docker version
-          docker build -t hello-world-node .
+          docker build -t hello-world .
         
           REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
           echo $REPO_URI
-          docker tag hello-world-node $REPO_URI
+          docker tag hello-world $REPO_URI
 
 #   ci:
 #       runs-on: ubuntu-latest
