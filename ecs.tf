@@ -65,11 +65,11 @@ resource "aws_ecs_service" "bar" {
   #     field = "cpu"
   #   }
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.ecs_target_group.arn
-  #   container_name   = "fargate-app"
-  #   container_port   = 80
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_target_group.arn
+    container_name   = "fargate-app"
+    container_port   = 80
+  }
 
   #   placement_constraints {
   #     type       = "memberOf"
