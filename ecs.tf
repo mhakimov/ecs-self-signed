@@ -51,9 +51,9 @@ resource "aws_ecs_service" "bar" {
   task_definition = aws_ecs_task_definition.my_task.arn
   desired_count   = 1
   network_configuration {
-    subnets         = [aws_subnet.public_aza.id]
+    subnets         = [aws_subnet.private_aza.id]
     security_groups = [aws_security_group.lb_sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
   launch_type = "FARGATE"
 
@@ -65,11 +65,11 @@ resource "aws_ecs_service" "bar" {
   #     field = "cpu"
   #   }
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.ecs_target_group.arn
-  #   container_name   = "fargate-app"
-  #   container_port   = 80
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_target_group.arn
+    container_name   = "fargate-app"
+    container_port   = 80
+  }
 
   #   placement_constraints {
   #     type       = "memberOf"
