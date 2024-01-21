@@ -27,7 +27,8 @@ jobs:
     - name: Checkout Code
       run: |
         ls
-        docker build -t simple-docker-image-node .
+        # docker build -t simple-docker-image-node .
+        cd docker
         docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy -f Dockerfile-proxy
         docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app -f Dockerfile-app
         
@@ -48,7 +49,7 @@ jobs:
           docker tag simple-docker-image-node:latest $REPO_URI
           echo "the region is $AWS_REGION"
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
-          docker push $REPO_URI
+          # docker push $REPO_URI
 
           docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy
           docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app
