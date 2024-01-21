@@ -28,6 +28,8 @@ jobs:
       run: |
         ls
         docker build -t simple-docker-image-node .
+        docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy -f Dockerfile-proxy
+        docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app -f Dockerfile-app
         
     - name: Configure AWS CLI
       uses: aws-actions/configure-aws-credentials@v3.0.2
@@ -47,3 +49,7 @@ jobs:
           echo "the region is $AWS_REGION"
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
           docker push $REPO_URI
+
+          docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy
+          docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app
+
