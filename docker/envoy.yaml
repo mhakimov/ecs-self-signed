@@ -44,7 +44,7 @@ static_resources:
               address:
                 socket_address:
                     address: 127.0.0.1
-                    port_value: 10100
+                    port_value: 8080
     # hosts:
     # - socket_address:
     #     address: 127.0.0.1
