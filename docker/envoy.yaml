@@ -36,10 +36,19 @@ static_resources:
     connect_timeout: 0.5s
     type: strict_dns
     lb_policy: round_robin
-    hosts:
-    - socket_address:
-        address: 127.0.0.1
-        port_value: 8080
+    load_assignment:
+      # cluster_name: service
+      endpoints:
+      - lb_endpoints:
+          - endpoint:
+              address:
+                socket_address:
+                    address: 127.0.0.1
+                    port_value: 10100
+    # hosts:
+    # - socket_address:
+    #     address: 127.0.0.1
+    #     port_value: 8080
 
 admin:
   access_log_path: "/dev/null"
