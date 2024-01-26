@@ -5,13 +5,25 @@ static_resources:
         address: 0.0.0.0
         port_value: 443
     filter_chains:
-      tls_contexts:
-        - common_tls_context:
-          tls_certificates:
-          - certificate_chain:
-              filename: "/etc/ssl/my-aws-public.crt"
-            private_key:
-              filename: "/etc/ssl/my-aws-private.key"
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          common_tls_context:
+            tls_certificates:
+            - certificate_chain: {filename: "/etc/ssl/my-aws-public.crt"}
+              private_key: {filename: "/etc/ssl/my-aws-private.key"}
+            # validation_context:
+            #   trusted_ca:
+            #     filename: certs/cacert.pem
+      
+      # tls_contexts:
+      #   - common_tls_context:
+      #     tls_certificates:
+      #     - certificate_chain:
+      #         filename: "/etc/ssl/my-aws-public.crt"
+      #       private_key:
+      #         filename: "/etc/ssl/my-aws-private.key"
       filters:
       - name: envoy.http_connection_manager
         typed_config:
