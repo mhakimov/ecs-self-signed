@@ -68,7 +68,7 @@ static_resources:
     type: strict_dns
     lb_policy: round_robin
     load_assignment:
-      # cluster_name: service
+      cluster_name: service
       endpoints:
       - lb_endpoints:
           - endpoint:
