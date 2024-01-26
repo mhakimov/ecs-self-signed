@@ -16,6 +16,8 @@ static_resources:
             # validation_context:
             #   trusted_ca:
             #     filename: certs/cacert.pem
+      per_connection_buffer_limit_bytes: 65536
+      max_connections: 1000 
       
       # tls_contexts:
       #   - common_tls_context:
