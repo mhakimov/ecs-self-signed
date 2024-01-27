@@ -16,8 +16,7 @@ static_resources:
             # validation_context:
             #   trusted_ca:
             #     filename: certs/cacert.pem
-      per_connection_buffer_limit_bytes: 65536
-      max_connections: 1000 
+      
       
       # tls_contexts:
       #   - common_tls_context:
@@ -46,7 +45,9 @@ static_resources:
             - name: envoy.router
               typed_config:
                "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
-      
+               
+    per_connection_buffer_limit_bytes: 65536
+    max_connections: 1000 
         # config:
         #   codec_type: auto
         #   stat_prefix: ingress_http
