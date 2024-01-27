@@ -52,8 +52,6 @@ static_resources:
               typed_config:
                "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
                
-    per_connection_buffer_limit_bytes: 65536
-    max_connections: 1000 
         # config:
         #   codec_type: auto
         #   stat_prefix: ingress_http
