@@ -1,10 +1,10 @@
-static_resources:
-  resource_monitors:
+resource_monitors:
   - name: "envoy.resource_monitors.global_downstream_max_connections"
     typed_config:
       "@type": type.googleapis.com/envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig
       max_active_downstream_connections: 1000
-      
+
+static_resources:    
   listeners:
   - address:
       socket_address:
