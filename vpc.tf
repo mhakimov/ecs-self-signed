@@ -28,9 +28,9 @@ resource "aws_route" "ecs_ss_route" {
 }
 
 
-#SUBNETS
+# #SUBNETS
 
-  #public
+#   #public
 
 resource "aws_subnet" "public_aza" {
   vpc_id            = aws_vpc.ecs_ss_vpc.id
@@ -73,7 +73,7 @@ resource "aws_route_table_association" "public_subnet_association_b" {
   route_table_id = aws_route_table.public.id
 }
 
-  #private
+#   #private
 resource "aws_subnet" "private_aza" {
   vpc_id            = aws_vpc.ecs_ss_vpc.id
   cidr_block        = "172.16.128.0/18"
@@ -115,7 +115,7 @@ resource "aws_route_table_association" "private_subnet_association_b" {
   route_table_id = aws_route_table.private.id
 }
 
-# NAT GW
+# # NAT GW
 resource "aws_nat_gateway" "nat_gw" {
   allocation_id = aws_eip.nat_gw_eip.id
   subnet_id     = aws_subnet.public_azb.id
