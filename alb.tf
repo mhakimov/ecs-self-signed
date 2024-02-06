@@ -77,5 +77,6 @@ resource "aws_lb_target_group" "ecs_target_group" {
   health_check {
     # path = "/"
     path = "/service"
+    protocol = "HTTPS"
   }
 }
