@@ -20,6 +20,10 @@ jobs:
       run: |
         echo "generate a new RSA private key and save it to a file named "castore.key" with a key length of 2048 bits."
         openssl genrsa -out castore.key 2048
+        echo "list files: "
+        ls
+        echo "castore.key content: "
+        cat castore.key
 
 
     # - name: Set up Terraform Environment
