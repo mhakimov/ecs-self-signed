@@ -17,7 +17,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Read config file
+    - name: Create config file
       run: |
         echo "castore.cfg content: "
         cat docker/certs/castore.cfg
@@ -59,6 +59,13 @@ jobs:
         ls
         echo "castore.key content: "
         cat castore.key
+
+    - name: generate a self-signed X.509 certificate based on the provided private key castore.key and configuration castore.cfg with a validity period of 10 years. The resulting certificate is saved in the file castore.pem
+      run: |
+        openssl req -x509 -new -nodes -key castore.key -days 3650 -config castore.cfg -out castore.pem
+        ls
+        cat castore.pem
+
 
 
     # - name: Set up Terraform Environment
