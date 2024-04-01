@@ -62,7 +62,7 @@ jobs:
 
     - name: generate a self-signed X.509 certificate based on the provided private key castore.key and configuration castore.cfg with a validity period of 10 years. The resulting certificate is saved in the file castore.pem
       run: |
-        openssl req -x509 -new -nodes -key castore.key -days 3650 -config castore.cfg -out castore.pem
+        openssl req -x509 -new -nodes -key castore.key -days 3650 -config docker/certs/castore.cfg -out castore.pem
         ls
         cat castore.pem
 
