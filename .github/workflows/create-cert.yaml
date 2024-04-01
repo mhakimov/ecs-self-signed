@@ -21,6 +21,35 @@ jobs:
       run: |
         echo "castore.cfg content: "
         cat docker/certs/castore.cfg
+        mkdir -p docker/certs && cd docker/certs
+
+        ##Create the config
+        cat <<EOF > castore.cfg
+        [ req ]
+        default_bits = 2048
+        default_keyfile = my-aws-private.key
+        distinguished_name = req_distinguished_name
+        req_extensions = v3_req
+        prompt = no
+        [ req_distinguished_name ]
+        C = US
+        ST = VA
+        L = Richmond
+        O = awsblogs.info
+        OU = awsblogs.info
+        CN= $MY_DOMAIN ## Use your domain
+        emailAddress = user@email.com ## Use your email address
+        [v3_ca]
+        subjectKeyIdentifier=hash
+        authorityKeyIdentifier=keyid:always,issuer:always
+        basicConstraints = CA:true
+        [v3_req]
+        ## Extensions to add to a certificate request
+        basicConstraints = CA:FALSE
+        keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+        EOF
+
+        cat castore.cfg
 
     - name: generate a new RSA private key
       run: |
