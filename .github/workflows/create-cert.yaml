@@ -86,7 +86,7 @@ jobs:
 
     - name: import certificate to ACM
       run: |
-        acm import-certificate
+        aws acm import-certificate
         --certificate fileb://my-aws-public.crt
         --private-key fileb://my-aws-private.key
         --certificate-chain fileb://castore.pem
