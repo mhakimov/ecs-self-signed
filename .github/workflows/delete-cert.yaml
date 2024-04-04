@@ -14,7 +14,9 @@ jobs:
         MY_DOMAIN: marat.don.com
 
     steps:
-
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
     - name: remove certificate from ACM
       run: |
         aws acm list-certificates
