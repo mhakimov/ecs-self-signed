@@ -11,59 +11,80 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-2 
+        MY_DOMAIN: marat.don.com
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Create config file
+      run: |
+        echo "castore.cfg content: "
+        cat docker/certs/castore.cfg
+        mkdir -p docker/certs && cd docker/certs
+
+        ##Create the config
+        cat <<EOF > castore.cfg
+        [ req ]
+        default_bits = 2048
+        default_keyfile = my-aws-private.key
+        distinguished_name = req_distinguished_name
+        req_extensions = v3_req
+        prompt = no
+        [ req_distinguished_name ]
+        C = US
+        ST = VA
+        L = Richmond
+        O = awsblogs.info
+        OU = awsblogs.info
+        CN= $MY_DOMAIN ## Use your domain
+        emailAddress = user@email.com ## Use your email address
+        [v3_ca]
+        subjectKeyIdentifier=hash
+        authorityKeyIdentifier=keyid:always,issuer:always
+        basicConstraints = CA:true
+        [v3_req]
+        ## Extensions to add to a certificate request
+        basicConstraints = CA:FALSE
+        keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+        EOF
+
+        cat castore.cfg
+
     - name: generate a new RSA private key
       run: |
         echo "generate a new RSA private key and save it to a file named "castore.key" with a key length of 2048 bits."
         openssl genrsa -out castore.key 2048
+        echo "list files: "
+        ls
+        echo "castore.key content: "
+        cat castore.key
 
+    - name: generate a self-signed X.509 certificate based on the provided private key and configuration
+      run: |
+        echo "generate a self-signed X.509 certificate based on the provided private key castore.key and configuration castore.cfg with a validity period of 10 years. The resulting certificate is saved in the file castore.pem"
+        openssl req -x509 -new -nodes -key castore.key -days 3650 -config docker/certs/castore.cfg -out castore.pem
+        ls
+        cat castore.pem
 
-    # - name: Set up Terraform Environment
-    #   run: |
-    #     wget https://releases.hashicorp.com/terraform/0.15.5/terraform_0.15.5_linux_amd64.zip
-    #     unzip terraform_0.15.5_linux_amd64.zip
-    #     chmod +x terraform
-    #     mv terraform /usr/local/bin/
-        
-    # - name: Configure AWS CLI
-    #   uses: aws-actions/configure-aws-credentials@v3.0.2
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: eu-west-2 
+    - name: generate a self-signed X.509 certificate based on the provided private key and configuration
+      run: |
+        echo "generate a self-signed X.509 certificate based on the provided private key castore.key and configuration castore.cfg with a validity period of 10 years. The resulting certificate is saved in the file castore.pem"
+        openssl req -x509 -new -nodes -key castore.key -days 3650 -config docker/certs/castore.cfg -out castore.pem
+        ls
+        cat castore.pem
 
-    # - name: Initialize Terraform
-    #   run: |
-    #     terraform init -upgrade -backend-config="bucket=ecs-self-signed-remote-state" \
-    #                     -backend-config="key=terraform.tfstate" \
-    #                     -backend-config="region=eu-west-2"
+    - name: generate a new RSA private key
+      run: |
+        openssl genrsa -out my-aws-private.key 2048
 
-    # - name: Terraform Validate
-    #   run: terraform validate
-        
-    # - name: Apply Terraform Changes
-    #   run: |
-    #     terraform apply -auto-approve 
-    #     REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-    #     echo $REPO_URI
-     
-    # - uses: docker-practice/actions-setup-docker@master
-    # - name: Install docker
-    #   run: |
-    #       set -x
-    #       docker version
-        
-    # - name: Push image to repo
-    #   run: |
-    #       echo "building image"
-    #       docker version
-    #       docker build -t hello-world .
-        
-    #       REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-    #       echo $REPO_URI
-    #       docker tag hello-world $REPO_URI
+        echo "generate a new Certificate Signing Request using the private key provided"
+        openssl req -new -key my-aws-private.key -out my-aws.csr -config docker/certs/castore.cfg
 
+        echo "command takes a CSR (my-aws.csr), uses a CA (castore.pem and castore.key) to sign it, and outputs the resulting certificate (my-aws-public.crt) with a validity period of 365 days."
+        openssl x509 -req -in my-aws.csr -CA castore.pem -CAkey castore.key -CAcreateserial -out my-aws-public.crt -days 365
+
+    - name: import certificate to ACM
+      run: |
+        ls
+        aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem --region eu-west-2
