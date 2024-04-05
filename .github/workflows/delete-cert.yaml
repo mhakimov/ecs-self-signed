@@ -17,7 +17,6 @@ jobs:
       
     - name: remove certificate from ACM
       run: |
-        aws acm list-certificates 
         cert_arn=$(aws acm list-certificates --output json --query "CertificateSummaryList[?DomainName=='marat.don.com'].CertificateArn" --region eu-west-2)
         echo $cert_arn
         aws acm delete-certificate --certificate-arn $cert_arn --region eu-west-2
