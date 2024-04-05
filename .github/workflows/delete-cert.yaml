@@ -21,7 +21,7 @@ jobs:
         certificates=$(aws acm list-certificates --query "CertificateSummaryList[?contains(DomainName, 'marat.don.com')].CertificateArn" --output text)
 
         # Remove each certificate
-        while IFS= read -r cert_arn; do
+        while IFS=$'\n' read -r cert_arn; do
           aws acm delete-certificate --certificate-arn "$cert_arn"
           echo "Certificate $cert_arn deleted."
         done <<< "$certificates"
