@@ -87,5 +87,6 @@ jobs:
     - name: import certificate to ACM
       run: |
         ls
-        aws acm list-certificates
         aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem --region eu-west-2
+        aws acm list-certificates
+
