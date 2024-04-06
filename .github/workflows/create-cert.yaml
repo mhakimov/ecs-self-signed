@@ -10,8 +10,9 @@ jobs:
     env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2 
-        MY_DOMAIN: marat.don.com
+        AWS_REGION: ${{ vars.AWS_REGION }}
+        MY_DOMAIN: ${{ secrets.domain_name }}
+        MY_EMAIL: ${{ vars.MY_EMAIL }}
 
     steps:
     - name: Checkout Code
@@ -19,9 +20,9 @@ jobs:
 
     - name: Create config file
       run: |
-        echo "castore.cfg content: "
-        cat docker/certs/castore.cfg
-        mkdir -p docker/certs && cd docker/certs
+        # echo "castore.cfg content: "
+        # cat docker/certs/castore.cfg
+        # mkdir -p docker/certs && cd docker/certs
 
         ##Create the config
         cat <<EOF > castore.cfg
@@ -32,13 +33,11 @@ jobs:
         req_extensions = v3_req
         prompt = no
         [ req_distinguished_name ]
-        C = US
-        ST = VA
-        L = Richmond
-        O = awsblogs.info
-        OU = awsblogs.info
+        C = UK
+        O = worth
+        OU = worth-systems
         CN= $MY_DOMAIN ## Use your domain
-        emailAddress = user@email.com ## Use your email address
+        emailAddress = $MY_EMAIL ## Use your email address
         [v3_ca]
         subjectKeyIdentifier=hash
         authorityKeyIdentifier=keyid:always,issuer:always
@@ -87,6 +86,6 @@ jobs:
     - name: import certificate to ACM
       run: |
         ls
-        aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem --region eu-west-2
+        aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
         aws acm list-certificates
 
