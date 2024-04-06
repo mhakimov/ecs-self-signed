@@ -10,15 +10,15 @@ jobs:
     env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: eu-west-2 
-        MY_DOMAIN: marat.don.com
+        AWS_REGION: ${{ env.AWS_REGION }}
+        MY_DOMAIN: ${{ secrets.domain_name }}
 
     steps:
       
     - name: remove certificate from ACM
       run: |
         # List all certificates
-        certificates=$(aws acm list-certificates --query "CertificateSummaryList[?contains(DomainName, 'marat.don.com')].CertificateArn" --output text)
+        certificates=$(aws acm list-certificates --query "CertificateSummaryList[?contains(DomainName, '$MY_DOMAIN')].CertificateArn" --output text)
         echo "certs: $certificates"
 
         # Remove each certificate
