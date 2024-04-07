@@ -1,4 +1,4 @@
-name: Deploy Infrastructure
+name: Prepare docker images
 
 # on: [push]
 # on: 
@@ -45,7 +45,6 @@ jobs:
           echo "building image"
           docker version        
           # REPO_URI=$(aws ecr describe-repositories --repository-names ttest --query 'repositories[].repositoryUri' --output text)
-          # echo $REPO_URI
           REPO_URI_PROXY=$(aws ecr describe-repositories --repository-names proxy --query 'repositories[].repositoryUri' --output text)
           REPO_URI_APP=$(aws ecr describe-repositories --repository-names app --query 'repositories[].repositoryUri' --output text)
 
