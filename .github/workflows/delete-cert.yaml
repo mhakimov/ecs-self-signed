@@ -1,23 +1,28 @@
-name: Create RSA Cert
+name: Delete RSA Cert
 
 # on: [push]
 on: 
   workflow_dispatch:
 jobs:
   deploy:
-    name: Generate certif 
+    name: Remove certif 
     runs-on: ubuntu-latest
     env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2 
-        MY_DOMAIN: marat.don.com
+        AWS_REGION: ${{ vars.AWS_REGION }}
+        MY_DOMAIN: ${{ secrets.domain_name }}
 
     steps:
-
+      
     - name: remove certificate from ACM
       run: |
-        cert_arn=aws acm list-certificates --output json --query "CertificateSummaryList[?DomainName=='$MY_DOMAIN'].CertificateArn"
-        echo $cert_arn
-        aws acm delete-certificate --certificate-arn $cert_arn
+        # List all certificates
+        certificates=$(aws acm list-certificates --query "CertificateSummaryList[?contains(DomainName, '$MY_DOMAIN')].CertificateArn" --output text)
+        echo "certs: $certificates"
 
+        # Remove each certificate
+        for cert_arn in $certificates; do
+          aws acm delete-certificate --certificate-arn "$cert_arn"
+          echo "Certificate $cert_arn deleted."
+        done
