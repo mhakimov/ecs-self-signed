@@ -82,6 +82,7 @@ jobs:
 
     - name: import certificate to ACM
       run: |
+        cd docker/certs
         ls
         aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
         aws acm list-certificates
