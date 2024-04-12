@@ -31,13 +31,18 @@ resource "aws_lb_listener" "alb_listener_https" {
   }
 }
 
-resource "aws_acm_certificate" "webapp_cert" {
-  domain_name       = var.domain_name
-  validation_method = "DNS"
-  lifecycle {
-    create_before_destroy = true
-  }
+data "aws_acm_certificate" "webapp_cert" {
+  domain   = var.domain_name
+  statuses = ["ISSUED"]
 }
+
+# resource "aws_acm_certificate" "webapp_cert" {
+#   domain_name       = var.domain_name
+#   validation_method = "DNS"
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 resource "aws_route53_record" "https_record" {
   allow_overwrite = true
