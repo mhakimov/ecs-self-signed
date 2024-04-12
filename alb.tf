@@ -23,7 +23,7 @@ resource "aws_lb_listener" "alb_listener_https" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
 
-  certificate_arn = aws_acm_certificate.webapp_cert.arn
+  certificate_arn = data.aws_acm_certificate.webapp_cert.arn
 
   default_action {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
@@ -46,9 +46,9 @@ data "aws_acm_certificate" "webapp_cert" {
 
 resource "aws_route53_record" "https_record" {
   allow_overwrite = true
-  name            = tolist(aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_name
-  records         = [tolist(aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_value]
-  type            = tolist(aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_type
+  name            = tolist(data.aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_name
+  records         = [tolist(data.aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_value]
+  type            = tolist(data.aws_acm_certificate.webapp_cert.domain_validation_options)[0].resource_record_type
   zone_id         = var.hosted_zone_id
   ttl             = 60
 }
