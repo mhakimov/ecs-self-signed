@@ -105,8 +105,10 @@ jobs:
       run: |
           docker version
           # Check if repository for proxy image exists
-          proxy_repository_info=$(aws ecr describe-repositories --repository-names proxy 2>&1)
-          
+          echo "hiiiii"
+          proxy_repository_info=$(aws ecr describe-repositories --repository-names proxy 2>/dev/null))
+          echo "hi2"
+
           if [[ $proxy_repository_info == *"RepositoryNotFoundException"* ]]; then
             # Repository doesn't exist, create it
             aws ecr create-repository --repository-name proxy 
@@ -127,7 +129,7 @@ jobs:
           # fi
 
           # Check if repository for app image exists
-          app_repository_info=$(aws ecr describe-repositories --repository-names app 2>&1)
+          app_repository_info=$(aws ecr describe-repositories --repository-names app 2>/dev/null))
 
           if [[ $app_repository_info == *"RepositoryNotFoundException"* ]]; then
           # Repository doesn't exist, create it
