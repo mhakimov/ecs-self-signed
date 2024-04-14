@@ -80,12 +80,12 @@ jobs:
         echo "command takes a CSR (my-aws.csr), uses a CA (castore.pem and castore.key) to sign it, and outputs the resulting certificate (my-aws-public.crt) with a validity period of 365 days."
         openssl x509 -req -in my-aws.csr -CA castore.pem -CAkey castore.key -CAcreateserial -out my-aws-public.crt -days 365
 
-    - name: import certificate to ACM
-      run: |
-        cd docker/certs
-        ls
-        aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
-        aws acm list-certificates
+    # - name: import certificate to ACM
+    #   run: |
+    #     cd docker/certs
+    #     ls
+    #     aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
+    #     aws acm list-certificates
 
     - uses: docker-practice/actions-setup-docker@master
     - name: Install docker
