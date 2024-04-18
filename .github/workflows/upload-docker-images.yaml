@@ -93,21 +93,23 @@ jobs:
           set -x
           docker version
 
-    - name: Build images
-      run: |
-        ls
-        # docker build -t simple-docker-image-node .
-        cd docker
-        docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy -f Dockerfile-proxy .
-        docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app -f Dockerfile-app .
+    # - name: Build images
+    #   run: |
+    #     ls
+    #     # docker build -t simple-docker-image-node .
+    #     cd docker
+    #     docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy -f Dockerfile-proxy .
+    #     docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app -f Dockerfile-app .
 
     - name: Push image to repo   
       run: |
           docker version
           # Check if repository for proxy image exists
           echo "hiiiii"
-          proxy_repository_info=$(aws ecr describe-repositories --repository-names proxy)
+          proxy_repository_info=$(aws ecr describe-repositories)
           echo "hi2"
+          echo $proxy_repository_info
+
 
           if [[ $proxy_repository_info == *"RepositoryNotFoundException"* ]]; then
             # Repository doesn't exist, create it
