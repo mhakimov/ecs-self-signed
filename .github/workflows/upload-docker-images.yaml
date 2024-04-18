@@ -106,7 +106,7 @@ jobs:
           docker version
           # Check if repository for proxy image exists
           echo "hiiiii"
-          proxy_repository_info=$(aws ecr describe-repositories)
+          proxy_repository_info=$(aws ecr describe-repositories --repository-names proxy 2> /dev/null)
           echo "hi2"
           echo $proxy_repository_info
 
