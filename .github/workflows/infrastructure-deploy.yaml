@@ -33,9 +33,7 @@ jobs:
 
     - name: Initialize Terraform
       run: |
-        terraform init -upgrade -backend-config="bucket=ecs-self-signed-remote-state" \
-                        -backend-config="key=terraform.tfstate" \
-                        -backend-config="region=eu-west-2"
+        terraform init -upgrade
 
     - name: Terraform Validate
       run: terraform validate
