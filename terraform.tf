@@ -1,6 +1,7 @@
 terraform {
-  cloud {
+  backend "remote" {
     organization = "m-computing"
+
     workspaces {
       name = "ecs-ss"
     }
