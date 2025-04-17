@@ -31,11 +31,21 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-2 
 
-    - name: Initialize Terraform
-      env:
-        TF_CLOUD_TOKEN: ${{ secrets.TF_CLOUD_TOKEN }}
+    # - name: Initialize Terraform
+    #   env:
+    #     TF_CLOUD_TOKEN: ${{ secrets.TF_CLOUD_TOKEN }}
+    #   run: |
+    #     terraform init -upgrade
+
+    - name: Setup Terraform Credentials
       run: |
-        terraform init -upgrade
+        mkdir -p ~/.terraform.d
+        echo 'credentials "app.terraform.io" {
+          token = "${{ secrets.TF_CLOUD_TOKEN }}"
+        }' > ~/.terraform.d/credentials.tfrc.json
+
+    - name: Terraform Init
+      run: terraform init -upgrade
 
     - name: Terraform Validate
       run: terraform validate
