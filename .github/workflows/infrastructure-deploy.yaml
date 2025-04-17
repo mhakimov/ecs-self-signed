@@ -32,6 +32,8 @@ jobs:
         aws-region: eu-west-2 
 
     - name: Initialize Terraform
+      env:
+        TF_CLOUD_TOKEN: ${{ secrets.TF_CLOUD_TOKEN }}
       run: |
         terraform init -upgrade
 
