@@ -56,11 +56,9 @@ jobs:
         REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
         echo $REPO_URI
      
-    - uses: docker-practice/actions-setup-docker@master
-    - name: Install docker
+    - name: Verify Docker installation
       run: |
-          set -x
-          docker version
+        docker version
         
     - name: Push image to repo
       run: |
