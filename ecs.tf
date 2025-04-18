@@ -38,7 +38,7 @@ resource "aws_ecs_task_definition" "my_task" {
       { name = "NODE_ENV", value = "production" }
     ],
     essential = true,
-    image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/ttest:latest",
+    image     = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/fargate-repo:latest",
     # image        = "${aws_ecr_repository.ecr_repo.repository_url}:latest",
     name         = "fargate-app",
     portMappings = [{ containerPort = 80 }],
@@ -51,8 +51,8 @@ resource "aws_ecs_service" "bar" {
   task_definition = aws_ecs_task_definition.my_task.arn
   desired_count   = 1
   network_configuration {
-    subnets         = [aws_subnet.private_aza.id]
-    security_groups = [aws_security_group.lb_sg.id]
+    subnets          = [aws_subnet.private_aza.id]
+    security_groups  = [aws_security_group.lb_sg.id]
     assign_public_ip = false
   }
   launch_type = "FARGATE"
