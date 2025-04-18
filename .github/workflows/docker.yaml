@@ -18,11 +18,9 @@ jobs:
         AWS_REGION: eu-west-2 
 
     steps:
-    - uses: docker-practice/actions-setup-docker@master
-    - name: Install docker
+    - name: Verify Docker installation
       run: |
-          set -x
-          docker version
+        docker version
 
     - uses: actions/checkout@v4
     - name: Checkout Code
