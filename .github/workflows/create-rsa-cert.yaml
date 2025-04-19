@@ -1,0 +1,88 @@
+name: Create RSA Cert and upload it to ACM
+
+# on: [push]
+on: 
+  workflow_dispatch:
+jobs:
+  deploy:
+    name: Generate certif 
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ vars.AWS_REGION }}
+        MY_DOMAIN: ${{ secrets.domain_name }}
+        MY_EMAIL: ${{ vars.MY_EMAIL }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Create config file
+      run: |
+        mkdir -p docker/certs && cd docker/certs
+
+        ##Create the config
+        cat <<EOF > castore.cfg
+        [ req ]
+        default_bits = 2048
+        default_keyfile = my-aws-private.key
+        distinguished_name = req_distinguished_name
+        req_extensions = v3_req
+        prompt = no
+        [ req_distinguished_name ]
+        C = UK
+        O = worth
+        OU = worth-systems
+        CN= $MY_DOMAIN ## Use your domain
+        emailAddress = $MY_EMAIL ## Use your email address
+        [v3_ca]
+        subjectKeyIdentifier=hash
+        authorityKeyIdentifier=keyid:always,issuer:always
+        basicConstraints = CA:true
+        [v3_req]
+        ## Extensions to add to a certificate request
+        basicConstraints = CA:FALSE
+        keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+        EOF
+
+        # cat castore.cfg
+
+    - name: generate new RSA private key
+      run: |
+        echo "generate a new RSA private key and save it to a file named "castore.key" with a key length of 2048 bits."
+        cd docker/certs
+
+        openssl genrsa -out castore.key 2048
+        echo "list files: "
+        ls
+        # echo "castore.key content: "
+        # cat castore.key
+
+    - name: generate self-signed X.509 certificate
+      run: |
+        echo "generate a self-signed X.509 certificate based on the provided private key castore.key and configuration castore.cfg with a validity period of 10 years. The resulting certificate is saved in the file castore.pem"
+        cd docker/certs
+
+        openssl req -x509 -new -nodes -key castore.key -days 3650 -config castore.cfg -out castore.pem
+        ls
+        # cat castore.pem
+
+    - name: generate new RSA private key
+      run: |
+        cd docker/certs
+
+        openssl genrsa -out my-aws-private.key 2048
+
+        echo "generate a new Certificate Signing Request using the private key provided"
+        openssl req -new -key my-aws-private.key -out my-aws.csr -config castore.cfg
+
+        echo "command takes a CSR (my-aws.csr), uses a CA (castore.pem and castore.key) to sign it, and outputs the resulting certificate (my-aws-public.crt) with a validity period of 365 days."
+        openssl x509 -req -in my-aws.csr -CA castore.pem -CAkey castore.key -CAcreateserial -out my-aws-public.crt -days 365
+
+    - name: import certificate to ACM
+      run: |
+        cd docker/certs
+        ls
+        aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
+        aws acm list-certificates
