@@ -1,12 +1,12 @@
 name: Prepare docker images
 
 # on: [push]
-# on: 
-#   workflow_dispatch:
-on:
-  push:
-    branches:
-      - node-webapp
+on: 
+  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - node-webapp
 jobs:
   deploy:
     name: Build image
@@ -17,11 +17,6 @@ jobs:
         AWS_REGION: eu-west-2 
 
     steps:
-    - uses: docker-practice/actions-setup-docker@master
-    - name: Install docker
-      run: |
-          set -x
-          docker version
 
     - uses: actions/checkout@v4
     - name: Checkout Code
