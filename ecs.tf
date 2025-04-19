@@ -1,5 +1,5 @@
-resource "aws_ecr_repository" "ecr_repo" {
-  name                 = "fargate-repo"
+resource "aws_ecr_repository" "app_repo" {
+  name                 = "app"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -8,7 +8,7 @@ resource "aws_ecr_repository" "ecr_repo" {
 }
 
 resource "aws_ecr_repository" "envoy_repo" {
-  name                 = "envoy-repo"
+  name                 = "proxy"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
