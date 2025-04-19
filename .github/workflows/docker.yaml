@@ -1,13 +1,12 @@
-name: Push docker image
+name: Push docker images
 
 # on: [push]
-# on: 
-#   workflow_dispatch:
-on:
-  push:
-    branches:
-      - node-webapp
-      - restart-branch
+on: 
+  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - restart-branch
 jobs:
   deploy:
     name: Build image
@@ -25,8 +24,13 @@ jobs:
     - uses: actions/checkout@v4
     - name: Checkout Code
       run: |
-        ls
-        docker build -t simple-docker-image-node .
+        APP_REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+        PROXY_REPO_URI=$(aws ecr describe-repositories --repository-names envoy-repo --query 'repositories[].repositoryUri' --output text)
+
+        docker build -t APP_REPO_URI docker/Dockerfile-app
+        docker build -t PROXY_REPO_URI docker/Dockerfile-proxy
+
+
         
     - name: Configure AWS CLI
       uses: aws-actions/configure-aws-credentials@v3.0.2
@@ -40,9 +44,13 @@ jobs:
       run: |
           echo "building image"
           docker version        
-          REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-          echo $REPO_URI
-          docker tag simple-docker-image-node:latest $REPO_URI
-          echo "the region is $AWS_REGION"
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
-          docker push $REPO_URI
+          # REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+          # echo $REPO_URI
+          # docker tag simple-docker-image-node:latest $REPO_URI
+          # echo "the region is $AWS_REGION"
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $APP_REPO_URI
+          docker push $APP_REPO_URI
+          docker push $PROXY_REPO_URI
+
+
+          
