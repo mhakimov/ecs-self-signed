@@ -2,5 +2,4 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform/
 terraform.tfvars
-docker/
 node_modules/
