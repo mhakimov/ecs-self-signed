@@ -9,3 +9,8 @@ variable "domain_name" {
 variable "hosted_zone_id" {
   description = "Id of the hosted zone you have created"
 }
+
+//TODO create env var
+variable "s3_bucket_utils" {
+  default = "self-signed-certs-project-utils"
+}
