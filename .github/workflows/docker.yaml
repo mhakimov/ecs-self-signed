@@ -24,6 +24,8 @@ jobs:
         # docker build -t simple-docker-image-node .
         cd docker
         pwd
+        #TODO: change it to env var
+        aws s3 cp s3://self-signed-certs-project-utils/certs/ ./certs/ --recursive
         ls
         docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy -f Dockerfile-proxy .
         docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app -f Dockerfile-app .
