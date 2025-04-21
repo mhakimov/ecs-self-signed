@@ -90,5 +90,5 @@ jobs:
 #TODO: use env var instead
     - name: Upload certs to S3
       run: |
-        aws s3 cp docker/certs s3://self-signed-certs-project-utils --recursive
+        aws s3 cp docker/certs s3://self-signed-certs-project-utils/certs --recursive
 
