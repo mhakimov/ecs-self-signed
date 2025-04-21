@@ -67,12 +67,14 @@ resource "aws_lb_listener" "alb_listener_http" {
 
 resource "aws_lb_target_group" "ecs_target_group" {
   name        = "precious-target-group"
-  port        = 80
-  protocol    = "HTTP"
+  port        = 443
+  protocol    = "HTTPS"
   vpc_id      = aws_vpc.ecs_ss_vpc.id
   target_type = "ip"
 
   health_check {
-    path = "/"
+    # path = "/"
+    path     = "/service"
+    protocol = "HTTPS"
   }
 }
