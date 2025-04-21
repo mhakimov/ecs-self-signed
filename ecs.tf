@@ -101,8 +101,8 @@ resource "aws_ecs_service" "bar" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
-    container_name   = "fargate-app"
-    container_port   = 80
+    container_name   = "envoy"
+    container_port   = 443
   }
 
   #   placement_constraints {

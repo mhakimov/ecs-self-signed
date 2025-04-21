@@ -1,45 +1,61 @@
-static_resources:
+overload_manager:
+  resource_monitors:
+    - name: "envoy.resource_monitors.global_downstream_max_connections"
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig
+        max_active_downstream_connections: 1000
+
+static_resources:    
   listeners:
   - address:
       socket_address:
         address: 0.0.0.0
         port_value: 443
     filter_chains:
-      tls_context:
-        common_tls_context:
-          tls_certificates:
-          - certificate_chain:
-              filename: "/etc/ssl/my-aws-public.crt"
-            private_key:
-              filename: "/etc/ssl/my-aws-private.key"
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          common_tls_context:
+            tls_certificates:
+            - certificate_chain: {filename: "/etc/ssl/my-aws-public.crt"}
+              private_key: {filename: "/etc/ssl/my-aws-private.key"}
+
       filters:
       - name: envoy.http_connection_manager
-        config:
-          codec_type: auto
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          codec_type: AUTO
           stat_prefix: ingress_http
           route_config:
             name: local_route
             virtual_hosts:
-            - name: service
-              domains:
-              - "*"
-              routes:
-              - match:
-                  prefix: "/"
-                route:
-                  cluster: local_service
+              - name: service
+                domains: ["*"]
+                routes:
+                  - match:
+                      prefix: "/"
+                    route:
+                      cluster: local_service
           http_filters:
-          - name: envoy.router
-            config: {}
+            - name: envoy.router
+              typed_config:
+               "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+            
   clusters:
   - name: local_service
     connect_timeout: 0.5s
     type: strict_dns
     lb_policy: round_robin
-    hosts:
-    - socket_address:
-        address: 127.0.0.1
-        port_value: 8080
+    load_assignment:
+      cluster_name: service
+      endpoints:
+      - lb_endpoints:
+          - endpoint:
+              address:
+                socket_address:
+                    address: 127.0.0.1
+                    port_value: 8080
 
 admin:
   access_log_path: "/dev/null"
