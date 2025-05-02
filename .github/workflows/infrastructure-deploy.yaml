@@ -53,22 +53,22 @@ jobs:
     - name: Apply Terraform Changes
       run: |
         terraform apply -auto-approve 
-        REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-        echo $REPO_URI
+    #     REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+    #     echo $REPO_URI
      
-    - name: Verify Docker installation
-      run: |
-        docker version
+    # - name: Verify Docker installation
+    #   run: |
+    #     docker version
         
-    - name: Push image to repo
-      run: |
-          echo "building image"
-          docker version
-          docker build -t hello-world .
+    # - name: Push image to repo
+    #   run: |
+    #       echo "building image"
+    #       docker version
+    #       docker build -t hello-world .
         
-          REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-          echo $REPO_URI
-          docker tag hello-world $REPO_URI
+    #       REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+    #       echo $REPO_URI
+    #       docker tag hello-world $REPO_URI
 
 #   ci:
 #       runs-on: ubuntu-latest
