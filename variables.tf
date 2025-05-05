@@ -14,3 +14,5 @@ variable "hosted_zone_id" {
 variable "s3_bucket_utils" {
   default = "self-signed-certs-project-utils"
 }
+
+variable "my_ip" {}

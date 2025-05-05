@@ -86,7 +86,7 @@ resource "aws_ecs_service" "bar" {
   desired_count   = 1
   network_configuration {
     subnets          = [aws_subnet.private_aza.id]
-    security_groups  = [aws_security_group.lb_sg.id]
+    security_groups  = [aws_security_group.ecs_security_group.id]
     assign_public_ip = false
   }
   launch_type = "FARGATE"
