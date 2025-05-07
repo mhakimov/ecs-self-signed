@@ -54,7 +54,7 @@ jobs:
       env:
         TF_VAR_my_ip: ${{ secrets.MY_IP }}
       run: |
-        terraform apply -auto-approve -var="my_ip=${{ secrets.MY_IP }}
+        terraform apply -auto-approve -var="my_ip=${{ secrets.MY_IP }}"
     #     REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
     #     echo $REPO_URI
      
