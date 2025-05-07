@@ -3,10 +3,20 @@ import socket
 
 app = Flask(__name__)
 
+def get_ip_address():
+    try:
+        # Open a dummy socket connection to get the container's IP address
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Google's DNS, doesn't actually send data
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception as e:
+        return f"Error getting IP: {e}"
+
 @app.route('/service')
 def hello():
-  hostname = socket.gethostname()
-  ip_address = socket.gethostbyname(hostname)
+  ip_address = get_ip_address()
   return (f'Hello from {ip_address}!! You have reached behind envoy proxy!\n')
 
 if __name__ == "__main__":
