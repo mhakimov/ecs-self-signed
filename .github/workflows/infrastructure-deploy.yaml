@@ -11,6 +11,7 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-2 
+        TF_VAR_my_ip: ${{ secrets.MY_IP }}
 
     steps:
     - name: Checkout Code
