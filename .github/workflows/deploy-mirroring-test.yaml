@@ -17,6 +17,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up Terraform Environment
+        run: |
+          wget https://releases.hashicorp.com/terraform/0.15.5/terraform_0.15.5_linux_amd64.zip
+          unzip terraform_0.15.5_linux_amd64.zip
+          chmod +x terraform
+          mv terraform /usr/local/bin/
+
       - name: Get Source ENI ID of ECS Task
         id: get_eni
         env:
