@@ -1,7 +1,13 @@
 terraform {
-  backend "remote" {
-    organization = "m-computing"
+  # backend "remote" {
+  #   organization = var.tf_cloud_organisation
 
+  #   workspaces {
+  #     name = "ecs-ss"
+  #   }
+  # }
+  cloud {
+    organization = var.tf_cloud_organisation
     workspaces {
       name = "ecs-ss"
     }

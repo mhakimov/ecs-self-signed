@@ -10,7 +10,8 @@ jobs:
     env:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2 
+        aws-region: ${{ vars.AWS_REGION }}
+        tf_cloud_organisation: ${{ secrets.TF_CLOUD_ORGANISATION}}
 
     steps:
     - name: Checkout Code
