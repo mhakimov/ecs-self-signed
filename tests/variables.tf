@@ -4,7 +4,7 @@ variable "source_eni_id" {
   description = "ENI ID of the ECS Fargate task to mirror traffic from"
 }
 
-variable "vpc_id" {}
+# variable "vpc_id" {}
 variable "tfe_token" {}
 # variable "tf_cloud_organisation" {
 #   description = "name of organisation in your TF Cloud account"
