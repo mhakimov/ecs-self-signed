@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket = "ecs-self-signed-remote-state"
     key    = "tests/terraform.tfstate"
-    region = var.aws_region
+    region = "eu-west-2"
   }
 
   required_providers {
