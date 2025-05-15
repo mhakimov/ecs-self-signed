@@ -18,6 +18,7 @@ resource "aws_instance" "mirror_target" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = "t2.micro"
   subnet_id              = data.tfe_outputs.ecs_ss_outputs.nonsensitive_values.private_subnet_aza_id
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
   vpc_security_group_ids = [aws_security_group.traffic_mirror_target_sg.id]
 
   tags = {
