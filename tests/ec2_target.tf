@@ -50,7 +50,7 @@ resource "aws_iam_instance_profile" "ssm_profile" {
   name = "ssm-profile"
   role = aws_iam_role.ssm_role.name
 }
-`
+
 
 resource "aws_security_group" "traffic_mirror_target_sg" {
   name        = "traffic-mirror-target-sg"
