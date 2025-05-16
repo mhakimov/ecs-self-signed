@@ -35,6 +35,12 @@ jobs:
           CLUSTER_NAME: ${{ vars.TF_VAR_CLUSTER_NAME }}
           SERVICE_NAME: ${{ vars.TF_VAR_SERVICE_NAME }}
         run: |
+          TASK_ARN=$(aws ecs list-tasks \
+          --cluster $CLUSTER_NAME \
+          --service-name $SERVICE_NAME \
+          --query 'taskArns[0]' \
+          --output text)
+          
           TASK_INFO=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN)
 
           ENI_ID=$(echo "$TASK_INFO" | jq -r '.tasks[0].attachments[0].details[] | select(.name=="networkInterfaceId") | .value')
