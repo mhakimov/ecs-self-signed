@@ -58,6 +58,19 @@ resource "aws_security_group" "traffic_mirror_target_sg" {
   description = "Security group for traffic mirroring target EC2 instance"
   vpc_id      = data.tfe_outputs.ecs_ss_outputs.nonsensitive_values.vpc_id
 
+  ingress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [data.tfe_outputs.ecs_ss_outputs.nonsensitive_values.ecs_task_sg_id]
+  }
+
+  egress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [data.tfe_outputs.ecs_ss_outputs.nonsensitive_values.ecs_task_sg_id]
+  }
   egress {
     description = "Allow outbound HTTPS for SSM"
     from_port   = 443
