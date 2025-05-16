@@ -19,6 +19,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Set up Terraform Environment
         run: |
           wget https://releases.hashicorp.com/terraform/0.15.5/terraform_0.15.5_linux_amd64.zip
@@ -32,10 +35,13 @@ jobs:
           CLUSTER_NAME: ${{ vars.TF_VAR_CLUSTER_NAME }}
           SERVICE_NAME: ${{ vars.TF_VAR_SERVICE_NAME }}
         run: |
-          TASK_ARN=$(aws ecs list-tasks --cluster $CLUSTER_NAME --service-name $SERVICE_NAME --query 'taskArns[0]' --output text)
-          ENI_ID=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN \
-                    --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' --output text)
+          TASK_INFO=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN)
+
+          ENI_ID=$(echo "$TASK_INFO" | jq -r '.tasks[0].attachments[0].details[] | select(.name=="networkInterfaceId") | .value')
+          PRIVATE_IP=$(echo "$TASK_INFO" | jq -r '.tasks[0].attachments[0].details[] | select(.name=="privateIPv4Address") | .value')
+
           echo "SOURCE_ENI_ID=$ENI_ID" >> $GITHUB_ENV
+          echo "TASK_PRIVATE_IP=$PRIVATE_IP" >> $GITHUB_ENV
 
       - name: Terraform Init
         working-directory: ./tests
@@ -43,4 +49,5 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./tests
-        run: terraform apply -auto-approve -var "source_eni_id=$SOURCE_ENI_ID"
+        run: terraform apply -auto-approve -var "source_eni_id=$SOURCE_ENI_ID"   -var "task_private_ip=$TASK_PRIVATE_IP"
+

@@ -29,7 +29,7 @@ resource "aws_ec2_traffic_mirror_filter_rule" "inbound_http" {
     to_port   = 65535
   }
   source_cidr_block      = "0.0.0.0/0"
-  destination_cidr_block = "0.0.0.0/0"
+  destination_cidr_block = "${var.task_private_ip}/32"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "inbound_https" {
@@ -47,7 +47,7 @@ resource "aws_ec2_traffic_mirror_filter_rule" "inbound_https" {
     to_port   = 65535
   }
   source_cidr_block      = "0.0.0.0/0"
-  destination_cidr_block = "0.0.0.0/0"
+  destination_cidr_block = "${var.task_private_ip}/32"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "outbound_http" {
@@ -64,7 +64,7 @@ resource "aws_ec2_traffic_mirror_filter_rule" "outbound_http" {
     from_port = 0
     to_port   = 65535
   }
-  source_cidr_block      = "0.0.0.0/0"
+  source_cidr_block      = "${var.task_private_ip}/32"
   destination_cidr_block = "0.0.0.0/0"
 }
 
@@ -82,6 +82,6 @@ resource "aws_ec2_traffic_mirror_filter_rule" "outbound_https" {
     from_port = 0
     to_port   = 65535
   }
-  source_cidr_block      = "0.0.0.0/0"
+  source_cidr_block      = "${var.task_private_ip}/32"
   destination_cidr_block = "0.0.0.0/0"
 }
