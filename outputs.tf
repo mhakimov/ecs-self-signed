@@ -4,3 +4,7 @@ output "vpc_id" {
 output "private_subnet_aza_id" {
   value = aws_subnet.private_aza.id
 }
+
+output "ecs_task_sg_id" {
+  value = aws_security_group.ecs_security_group.id
+}
