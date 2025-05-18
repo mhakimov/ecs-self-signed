@@ -21,8 +21,3 @@ jobs:
       run: |
         echo "Deleting all files from s3://$S3_UTILS_BUCKET/certs"
         aws s3 rm s3://$S3_UTILS_BUCKET/certs --recursive
-
-    - name: List remaining items in the bucket (if any)
-      run: |
-        echo "Listing remaining files (should be empty if successful):"
-        aws s3 ls s3://$S3_UTILS_BUCKET/certs/
