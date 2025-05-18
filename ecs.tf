@@ -83,7 +83,7 @@ resource "aws_ecs_service" "bar" {
   name            = "test-service"
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.my_task.arn
-  desired_count   = 1
+  desired_count   = 2
   network_configuration {
     subnets          = [aws_subnet.private_aza.id]
     security_groups  = [aws_security_group.ecs_security_group.id]
