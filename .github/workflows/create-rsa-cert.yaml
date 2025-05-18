@@ -26,27 +26,27 @@ jobs:
         cat <<EOF > castore.cfg
         [ req ]
         default_bits = 2048
-        default_keyfile = my-aws-private.key
-        distinguished_name = req_distinguished_name
+        default_keyfile = my-aws-private.key   ## filename for the generated private key
+        distinguished_name = req_distinguished_name   ## See section below that defines subject fields (DN).
         req_extensions = v3_req
-        prompt = no
+        prompt = no ## Don't prompt for DN fields interactively — take them from the config file.
         [ req_distinguished_name ]
         C = UK
-        O = worth
-        OU = worth-systems
-        CN= $MY_DOMAIN ## Use your domain
-        emailAddress = $MY_EMAIL ## Use your email address
+        O = m-computing
+        OU = m-computing.org
+        CN = $MY_DOMAIN 
+        emailAddress = $MY_EMAIL 
         [v3_ca]
-        subjectKeyIdentifier=hash
-        authorityKeyIdentifier=keyid:always,issuer:always
-        basicConstraints = CA:true
+        ## Defines X.509 v3 extensions for a certificate authority (CA)
+        subjectKeyIdentifier=hash ## Adds a hash of the subject public key
+        authorityKeyIdentifier=keyid:always,issuer:always ## Includes information to identify the key used to sign this cert
+        basicConstraints = CA:true ##It is a CA and it can sign other certs
         [v3_req]
-        ## Extensions to add to a certificate request
-        basicConstraints = CA:FALSE
-        keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+        ## Defines extensions added to a certificate request (CSR)
+        basicConstraints = CA:FALSE ## this is not a CA
+        keyUsage = nonRepudiation, digitalSignature, keyEncipherment ## Restricts the usage of the key to specific operations.
         EOF
 
-        # cat castore.cfg
 
     - name: generate new RSA private key
       run: |
