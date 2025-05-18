@@ -1,5 +1,5 @@
-resource "aws_ecr_repository" "ecr_repo" {
-  name                 = "fargate-repo"
+resource "aws_ecr_repository" "app_repo" {
+  name                 = "app"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -7,34 +7,14 @@ resource "aws_ecr_repository" "ecr_repo" {
   }
 }
 
-# resource "aws_ecr_repository" "envoy_repo" {
-#   name                 = "envoy-repo"
-#   image_tag_mutability = "MUTABLE"
+resource "aws_ecr_repository" "envoy_repo" {
+  name                 = "proxy"
+  image_tag_mutability = "MUTABLE"
 
-#   image_scanning_configuration {
-#     scan_on_push = true
-#   }
-# }
-
-# "cluster": {
-#         "clusterArn": "arn:aws:ecs:us-west-1:<account>:cluster/ecs-encryption-cluster",
-#         "clusterName": "ecs-encryption-cluster",
-#         "status": "ACTIVE",
-#         "registeredContainerInstancesCount": 0,
-#         "runningTasksCount": 0,
-#         "pendingTasksCount": 0,
-#         "activeServicesCount": 0,
-#         "statistics": [],
-#         "tags": [],
-#         "settings": [
-#             {
-#                 "name": "containerInsights",
-#                 "value": "disabled"
-#             }
-#         ],
-#         "capacityProviders": [],
-#         "defaultCapacityProviderStrategy": []
-#     }
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
 
 resource "aws_ecs_cluster" "cluster" {
   name = "hello-fargate"
@@ -47,7 +27,7 @@ resource "aws_ecs_cluster" "cluster" {
 
 
 resource "aws_ecs_task_definition" "my_task" {
-  task_role_arn = aws_iam_role.ecs_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_execution_role.arn
   family                   = "sample-fargate"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -57,60 +37,48 @@ resource "aws_ecs_task_definition" "my_task" {
   memory = "512" # GB
 
   container_definitions = jsonencode([
-  #   {
-  #   environment : [
-  #     { name = "NODE_ENV", value = "production" }
-  #   ],
-  #   essential = true,
-  #   image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/ttest:latest",
-  #   # image        = "${aws_ecr_repository.ecr_repo.repository_url}:latest",
-  #   name         = "fargate-app",
-  #   portMappings = [{ containerPort = 80 }],
-  # },
-
-      {
-       logConfiguration = {
-         logDriver = "awslogs",
-         options = {
-          awslogs-group = "/ecs/ecs-self-signed",
-          awslogs-region = "eu-west-2",
+    {
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = "/ecs/ecs-self-signed",
+          awslogs-region        = "eu-west-2",
           awslogs-stream-prefix = "ecs"
-          }
-       },
-        portMappings = [
-         {
-           hostPort = 443,
-           protocol = "tcp",
-           containerPort = 443
-         }
-       ],
-       cpu = 0,
-       environment = [
-         {
-          name =  "DNS_NAME", 
-          value =  "ecs-ss.awsblogs.info"
-          }
-       ],
-       image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy:latest",
-       name = "envoy"
-     },
+        }
+      },
+      portMappings = [
+        {
+          hostPort      = 443,
+          protocol      = "tcp",
+          containerPort = 443
+        }
+      ],
+      cpu = 0,
+      environment = [
+        {
+          name  = "DNS_NAME",
+          value = "ecs-ss.awsblogs.info"
+        }
+      ],
+      image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy:latest",
+      name  = "envoy"
+    },
 
     {
-    logConfiguration = {
-      logDriver = "awslogs",
-      options = {
-        awslogs-group = "/ecs/ecs-self-signed",
-        awslogs-region = "eu-west-2",
-        awslogs-stream-prefix = "ecs"
-      }
-    },
-    cpu = 0,
-    image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/app:latest"
-    name = "service"
-  }
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = "/ecs/ecs-self-signed",
+          awslogs-region        = "eu-west-2",
+          awslogs-stream-prefix = "ecs"
+        }
+      },
+      cpu   = 0,
+      image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/app:latest"
+      name  = "service"
+    }
   ])
 }
-
 
 
 resource "aws_ecs_service" "bar" {
@@ -119,8 +87,8 @@ resource "aws_ecs_service" "bar" {
   task_definition = aws_ecs_task_definition.my_task.arn
   desired_count   = 2
   network_configuration {
-    subnets         = [aws_subnet.private_aza.id, aws_subnet.private_azb.id]
-    security_groups = [aws_security_group.lb_sg.id]
+    subnets          = [aws_subnet.private_aza.id]
+    security_groups  = [aws_security_group.ecs_security_group.id]
     assign_public_ip = false
   }
   launch_type = "FARGATE"
@@ -139,7 +107,7 @@ resource "aws_ecs_service" "bar" {
   #   container_port   = 80
   # }
 
-    load_balancer {
+  load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
     container_name   = "envoy"
     container_port   = 443

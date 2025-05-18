@@ -10,7 +10,8 @@ jobs:
     env:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2 
+        aws-region: ${{ vars.AWS_REGION }}
+        # tf_cloud_organisation: ${{ secrets.TF_CLOUD_ORGANISATION}}
 
     steps:
     - name: Checkout Code
@@ -31,36 +32,44 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-2 
 
-    - name: Initialize Terraform
+    # - name: Initialize Terraform
+    #   env:
+    #     TF_CLOUD_TOKEN: ${{ secrets.TF_CLOUD_TOKEN }}
+    #   run: |
+    #     terraform init -upgrade
+
+    - name: Setup Terraform Credentials
       run: |
-        terraform init -upgrade -backend-config="bucket=ecs-self-signed-remote-state" \
-                        -backend-config="key=terraform.tfstate" \
-                        -backend-config="region=eu-west-2"
+        mkdir -p ~/.terraform.d
+        echo 'credentials "app.terraform.io" {
+          token = "${{ secrets.TF_CLOUD_TOKEN }}"
+        }' > ~/.terraform.d/credentials.tfrc.json
+
+    - name: Terraform Init
+      run: terraform init -upgrade
 
     - name: Terraform Validate
       run: terraform validate
         
     - name: Apply Terraform Changes
       run: |
-        terraform apply -auto-approve 
-        REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-        echo $REPO_URI
+        terraform apply -auto-approve
+    #     REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+    #     echo $REPO_URI
      
-    - uses: docker-practice/actions-setup-docker@master
-    - name: Install docker
-      run: |
-          set -x
-          docker version
+    # - name: Verify Docker installation
+    #   run: |
+    #     docker version
         
-    - name: Push image to repo
-      run: |
-          echo "building image"
-          docker version
-          docker build -t hello-world .
+    # - name: Push image to repo
+    #   run: |
+    #       echo "building image"
+    #       docker version
+    #       docker build -t hello-world .
         
-          REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
-          echo $REPO_URI
-          docker tag hello-world $REPO_URI
+    #       REPO_URI=$(aws ecr describe-repositories --repository-names fargate-repo --query 'repositories[].repositoryUri' --output text)
+    #       echo $REPO_URI
+    #       docker tag hello-world $REPO_URI
 
 #   ci:
 #       runs-on: ubuntu-latest

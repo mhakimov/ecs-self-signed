@@ -1,10 +1,17 @@
 terraform {
-  cloud {
+  backend "remote" {
     organization = "m-computing"
+
     workspaces {
       name = "ecs-ss"
     }
   }
+  # cloud {
+    # organization = var.tf_cloud_organisation
+    # workspaces {
+      # name = "ecs-ss"
+    # }
+  # }
 
   required_providers {
     aws = {

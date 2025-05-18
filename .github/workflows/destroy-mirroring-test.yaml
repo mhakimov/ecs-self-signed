@@ -55,5 +55,5 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./tests
-        run: terraform destroy -auto-approve #-var "source_eni_id=$SOURCE_ENI_ID"   -var "task_private_ip=$TASK_PRIVATE_IP"
+        run: terraform destroy -auto-approve -var "source_eni_id= "   -var "task_private_ip=1.2.3.4"
 

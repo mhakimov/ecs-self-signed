@@ -20,18 +20,7 @@ static_resources:
             tls_certificates:
             - certificate_chain: {filename: "/etc/ssl/my-aws-public.crt"}
               private_key: {filename: "/etc/ssl/my-aws-private.key"}
-            # validation_context:
-            #   trusted_ca:
-            #     filename: certs/cacert.pem
-      
-      
-      # tls_contexts:
-      #   - common_tls_context:
-      #     tls_certificates:
-      #     - certificate_chain:
-      #         filename: "/etc/ssl/my-aws-public.crt"
-      #       private_key:
-      #         filename: "/etc/ssl/my-aws-private.key"
+
       filters:
       - name: envoy.http_connection_manager
         typed_config:
@@ -52,25 +41,6 @@ static_resources:
             - name: envoy.router
               typed_config:
                "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
-               
-        # config:
-        #   codec_type: auto
-        #   stat_prefix: ingress_http
-        #   route_config:
-        #     name: local_route
-        #     virtual_hosts:
-        #     - name: service
-        #       domains:
-        #       - "*"
-        #       routes:
-        #       - match:
-        #           prefix: "/"
-        #         route:
-        #           cluster: local_service
-        #   http_filters:
-        #   - name: envoy.router
-        #     config: {}
-
             
   clusters:
   - name: local_service
@@ -86,10 +56,6 @@ static_resources:
                 socket_address:
                     address: 127.0.0.1
                     port_value: 8080
-    # hosts:
-    # - socket_address:
-    #     address: 127.0.0.1
-    #     port_value: 8080
 
 admin:
   access_log_path: "/dev/null"

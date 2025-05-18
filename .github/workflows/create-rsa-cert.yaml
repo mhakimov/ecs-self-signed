@@ -86,3 +86,9 @@ jobs:
         ls
         aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
         aws acm list-certificates
+
+#TODO: use env var instead
+    - name: Upload certs to S3
+      run: |
+        aws s3 cp docker/certs s3://self-signed-certs-project-utils/certs --recursive
+
