@@ -1,4 +1,4 @@
-name: Deploy Traffic Mirroring Test
+name: 4. Deploy Traffic Mirroring Test
 
 on:
   workflow_dispatch:

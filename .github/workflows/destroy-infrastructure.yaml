@@ -1,4 +1,4 @@
-name: Destroy Infrastructure
+name: 93. Destroy Infrastructure
 
 # on: [push]
 on: 

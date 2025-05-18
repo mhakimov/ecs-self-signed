@@ -1,4 +1,4 @@
-name: Delete All ECR Images
+name: 91. Delete All ECR Images
 
 on:
   workflow_dispatch:

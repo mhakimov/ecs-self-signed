@@ -1,135 +1,48 @@
-name: Create RSA Cert and upload image
+name: 3. Prepare docker images
 
-# on: [push]
-on: 
+on:
   workflow_dispatch:
+
 jobs:
-  deploy:
-    name: Generate certif 
+  build-and-push:
+    name: Build and Push Docker Images
     runs-on: ubuntu-latest
     env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ vars.AWS_REGION }}
-        MY_DOMAIN: ${{ secrets.domain_name }}
-        MY_EMAIL: ${{ vars.MY_EMAIL }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      S3_UTILS_BUCKET: ${{ secrets.S3_UTILS_BUCKET }}
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Create config file
-      run: |
-        mkdir -p docker/certs && cd docker/certs
+      - name: Download Certs from S3
+        run: |
+          cd docker
+          aws s3 cp s3://$S3_UTILS_BUCKET/certs/ ./certs/ --recursive
+          ls ./certs
 
-        ##Create the config
-        cat <<EOF > castore.cfg
-        [ req ]
-        default_bits = 2048
-        default_keyfile = my-aws-private.key
-        distinguished_name = req_distinguished_name
-        req_extensions = v3_req
-        prompt = no
-        [ req_distinguished_name ]
-        C = UK
-        O = worth
-        OU = worth-systems
-        CN= $MY_DOMAIN ## Use your domain
-        emailAddress = $MY_EMAIL ## Use your email address
-        [v3_ca]
-        subjectKeyIdentifier=hash
-        authorityKeyIdentifier=keyid:always,issuer:always
-        basicConstraints = CA:true
-        [v3_req]
-        ## Extensions to add to a certificate request
-        basicConstraints = CA:FALSE
-        keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-        EOF
+      - name: Build Docker Images
+        run: |
+          cd docker
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/proxy -f Dockerfile-proxy .
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/app -f Dockerfile-app .
 
-        # cat castore.cfg
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-    - name: generate new RSA private key
-      run: |
-        echo "generate a new RSA private key and save it to a file named "castore.key" with a key length of 2048 bits."
-        cd docker/certs
+      - name: Authenticate Docker to AWS ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+            | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-        openssl genrsa -out castore.key 2048
-        echo "list files: "
-        ls
-        # echo "castore.key content: "
-        # cat castore.key
-
-    - name: generate self-signed X.509 certificate
-      run: |
-        echo "generate a self-signed X.509 certificate based on the provided private key castore.key and configuration castore.cfg with a validity period of 10 years. The resulting certificate is saved in the file castore.pem"
-        cd docker/certs
-
-        openssl req -x509 -new -nodes -key castore.key -days 3650 -config castore.cfg -out castore.pem
-        ls
-        # cat castore.pem
-
-    - name: generate new RSA private key
-      run: |
-        cd docker/certs
-
-        openssl genrsa -out my-aws-private.key 2048
-
-        echo "generate a new Certificate Signing Request using the private key provided"
-        openssl req -new -key my-aws-private.key -out my-aws.csr -config castore.cfg
-
-        echo "command takes a CSR (my-aws.csr), uses a CA (castore.pem and castore.key) to sign it, and outputs the resulting certificate (my-aws-public.crt) with a validity period of 365 days."
-        openssl x509 -req -in my-aws.csr -CA castore.pem -CAkey castore.key -CAcreateserial -out my-aws-public.crt -days 365
-
-
-    - uses: docker-practice/actions-setup-docker@master
-    - name: Install docker
-      run: |
-          set -x
-          docker version
-
-
-    - name: Push image to repo   
-      run: |
-          # Check if repository for proxy image exists
-          # proxy_repository_info=$(aws ecr describe-repositories --repository-names proxy 2> /dev/null)
-          # echo $proxy_repository_info
-
-
-          # if [[ $proxy_repository_info == *"RepositoryNotFoundException"* ]]; then
-          #   # Repository doesn't exist, create it
-          #   aws ecr create-repository --repository-name proxy 
-          #   echo "Repository created successfully."
-          # else
-          #   echo "Repository already exists."
-          # fi
-
-          
-          # aws ecr describe-repositories --repository-names proxy  2>&1 >/dev/null
-
-          # if [ $? -ne 0 ]; then
-          # # Repository doesn't exist, create it
-          # aws ecr create-repository --repository-name proxy
-          # echo "Proxy repository created successfully."
-          # else
-          # echo "Proxy repository already exists."
-          # fi
-
-          # Check if repository for app image exists
-          # app_repository_info=$(aws ecr describe-repositories --repository-names app 2>/dev/null)
-
-          # if [[ $app_repository_info == *"RepositoryNotFoundException"* ]]; then
-          # # Repository doesn't exist, create it
-          # aws ecr create-repository --repository-name app
-          # echo "App repository created successfully."
-          # else
-          # echo "App repository already exists."
-          # fi
-
-          REPO_URI_PROXY=$(aws ecr describe-repositories --repository-names proxy --query 'repositories[].repositoryUri' --output text)
-          REPO_URI_APP=$(aws ecr describe-repositories --repository-names app --query 'repositories[].repositoryUri' --output text)
-
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI_APP
-
-          docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy
-          docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app
-
+      - name: Push Docker Images to ECR
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/proxy
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/app

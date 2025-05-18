@@ -1,4 +1,4 @@
-name: Destroy Traffic Mirroring QA resources
+name: 90. Destroy Traffic Mirroring QA resources
 
 on:
   workflow_dispatch:
@@ -19,8 +19,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # - name: Install jq
-      #   run: sudo apt-get install -y jq
 
       - name: Set up Terraform Environment
         run: |
@@ -29,26 +27,7 @@ jobs:
           chmod +x terraform
           mv terraform /usr/local/bin/
 
-      # - name: Get Source ENI ID of ECS Task
-      #   id: get_eni
-      #   env:
-      #     CLUSTER_NAME: ${{ vars.TF_VAR_CLUSTER_NAME }}
-      #     SERVICE_NAME: ${{ vars.TF_VAR_SERVICE_NAME }}
-      #   run: |
-      #     TASK_ARN=$(aws ecs list-tasks \
-      #     --cluster $CLUSTER_NAME \
-      #     --service-name $SERVICE_NAME \
-      #     --query 'taskArns[0]' \
-      #     --output text)
-          
-      #     TASK_INFO=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN)
-
-      #     ENI_ID=$(echo "$TASK_INFO" | jq -r '.tasks[0].attachments[0].details[] | select(.name=="networkInterfaceId") | .value')
-      #     PRIVATE_IP=$(echo "$TASK_INFO" | jq -r '.tasks[0].attachments[0].details[] | select(.name=="privateIPv4Address") | .value')
-
-      #     echo "SOURCE_ENI_ID=$ENI_ID" >> $GITHUB_ENV
-      #     echo "TASK_PRIVATE_IP=$PRIVATE_IP" >> $GITHUB_ENV
-
+     
       - name: Terraform Init
         working-directory: ./tests
         run: terraform init

@@ -1,4 +1,4 @@
-name: Delete Certs from S3
+name: 92. Delete Certs from S3
 
 on: 
   workflow_dispatch:

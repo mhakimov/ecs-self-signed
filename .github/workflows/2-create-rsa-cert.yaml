@@ -1,4 +1,4 @@
-name: Create RSA Cert and upload it to ACM
+name: 2. Create RSA Cert and upload it to ACM
 
 # on: [push]
 on: 
@@ -91,8 +91,6 @@ jobs:
     - name: Upload certs to S3
       env:
         S3_UTILS_BUCKET: ${{ secrets.S3_UTILS_BUCKET }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
       run: |
         aws s3 cp docker/certs s3://$S3_UTILS_BUCKET/certs --recursive
 
