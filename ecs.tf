@@ -20,11 +20,9 @@ resource "aws_ecs_cluster" "cluster" {
   name = "hello-fargate"
   setting {
     name  = "containerInsights"
-    value = "disabled"
+    value = "enabled"
   }
 }
-
-
 
 resource "aws_ecs_task_definition" "my_task" {
   task_role_arn            = aws_iam_role.ecs_execution_role.arn
@@ -100,12 +98,6 @@ resource "aws_ecs_service" "bar" {
   #     type  = "binpack"
   #     field = "cpu"
   #   }
-
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.ecs_target_group.arn
-  #   container_name   = "fargate-app"
-  #   container_port   = 80
-  # }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
