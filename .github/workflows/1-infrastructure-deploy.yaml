@@ -1,0 +1,50 @@
+name: Deploy Infrastructure
+
+# on: [push]
+on: 
+  workflow_dispatch:
+jobs:
+  deploy:
+    name: Deploy Terraform infrastructure
+    runs-on: ubuntu-latest
+    env:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+
+    - name: Set up Terraform Environment
+      run: |
+        wget https://releases.hashicorp.com/terraform/0.15.5/terraform_0.15.5_linux_amd64.zip
+        unzip terraform_0.15.5_linux_amd64.zip
+        chmod +x terraform
+        mv terraform /usr/local/bin/
+        
+    - name: Configure AWS CLI
+      uses: aws-actions/configure-aws-credentials@v3.0.2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2 
+
+    - name: Setup Terraform Credentials
+      run: |
+        mkdir -p ~/.terraform.d
+        echo 'credentials "app.terraform.io" {
+          token = "${{ secrets.TF_CLOUD_TOKEN }}"
+        }' > ~/.terraform.d/credentials.tfrc.json
+
+    - name: Terraform Init
+      run: terraform init -upgrade
+
+    - name: Terraform Validate
+      run: terraform validate
+        
+    - name: Apply Terraform Changes
+      run: |
+        terraform apply -auto-approve
+   

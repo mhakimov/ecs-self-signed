@@ -1,0 +1,28 @@
+name: Delete Certs from S3
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  delete-certs:
+    name: Delete certs from S3
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      S3_UTILS_BUCKET: ${{ secrets.S3_UTILS_BUCKET }}
+
+    steps:
+    - name: Confirm bucket path
+      run: echo "Preparing to delete all contents under s3://$S3_UTILS_BUCKET/certs"
+
+    - name: Delete all cert files from S3
+      run: |
+        echo "Deleting all files from s3://$S3_UTILS_BUCKET/certs"
+        aws s3 rm s3://$S3_UTILS_BUCKET/certs --recursive
+
+    - name: List remaining items in the bucket (if any)
+      run: |
+        echo "Listing remaining files (should be empty if successful):"
+        aws s3 ls s3://$S3_UTILS_BUCKET/certs/

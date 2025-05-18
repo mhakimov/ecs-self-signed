@@ -80,12 +80,6 @@ jobs:
         echo "command takes a CSR (my-aws.csr), uses a CA (castore.pem and castore.key) to sign it, and outputs the resulting certificate (my-aws-public.crt) with a validity period of 365 days."
         openssl x509 -req -in my-aws.csr -CA castore.pem -CAkey castore.key -CAcreateserial -out my-aws-public.crt -days 365
 
-    # - name: import certificate to ACM
-    #   run: |
-    #     cd docker/certs
-    #     ls
-    #     aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
-    #     aws acm list-certificates
 
     - uses: docker-practice/actions-setup-docker@master
     - name: Install docker
@@ -93,31 +87,21 @@ jobs:
           set -x
           docker version
 
-    # - name: Build images
-    #   run: |
-    #     ls
-    #     # docker build -t simple-docker-image-node .
-    #     cd docker
-    #     docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy -f Dockerfile-proxy .
-    #     docker build -t 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app -f Dockerfile-app .
 
     - name: Push image to repo   
       run: |
-          docker version
           # Check if repository for proxy image exists
-          echo "hiiiii"
-          proxy_repository_info=$(aws ecr describe-repositories --repository-names proxy 2> /dev/null)
-          echo "hi2"
-          echo $proxy_repository_info
+          # proxy_repository_info=$(aws ecr describe-repositories --repository-names proxy 2> /dev/null)
+          # echo $proxy_repository_info
 
 
-          if [[ $proxy_repository_info == *"RepositoryNotFoundException"* ]]; then
-            # Repository doesn't exist, create it
-            aws ecr create-repository --repository-name proxy 
-            echo "Repository created successfully."
-          else
-            echo "Repository already exists."
-          fi
+          # if [[ $proxy_repository_info == *"RepositoryNotFoundException"* ]]; then
+          #   # Repository doesn't exist, create it
+          #   aws ecr create-repository --repository-name proxy 
+          #   echo "Repository created successfully."
+          # else
+          #   echo "Repository already exists."
+          # fi
 
           
           # aws ecr describe-repositories --repository-names proxy  2>&1 >/dev/null
@@ -131,23 +115,20 @@ jobs:
           # fi
 
           # Check if repository for app image exists
-          app_repository_info=$(aws ecr describe-repositories --repository-names app 2>/dev/null)
+          # app_repository_info=$(aws ecr describe-repositories --repository-names app 2>/dev/null)
 
-          if [[ $app_repository_info == *"RepositoryNotFoundException"* ]]; then
-          # Repository doesn't exist, create it
-          aws ecr create-repository --repository-name app
-          echo "App repository created successfully."
-          else
-          echo "App repository already exists."
-          fi
+          # if [[ $app_repository_info == *"RepositoryNotFoundException"* ]]; then
+          # # Repository doesn't exist, create it
+          # aws ecr create-repository --repository-name app
+          # echo "App repository created successfully."
+          # else
+          # echo "App repository already exists."
+          # fi
 
           REPO_URI_PROXY=$(aws ecr describe-repositories --repository-names proxy --query 'repositories[].repositoryUri' --output text)
           REPO_URI_APP=$(aws ecr describe-repositories --repository-names app --query 'repositories[].repositoryUri' --output text)
 
-          # docker tag simple-docker-image-node:latest $REPO_URI
-          echo "the region is $AWS_REGION"
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI_APP
-          # docker push $REPO_URI
 
           docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy
           docker push 962768705974.dkr.ecr.eu-west-2.amazonaws.com/app
