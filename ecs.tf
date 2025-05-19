@@ -39,7 +39,7 @@ resource "aws_ecs_task_definition" "my_task" {
         {
           hostPort      = 80,
           protocol      = "tcp",
-          containerPort = 80
+          containerPort = 8080
         }
       ],
       cpu   = 0,
@@ -73,7 +73,7 @@ resource "aws_ecs_service" "bar" {
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
     container_name   = "service"
-    container_port   = 80
+    container_port   = 8080
   }
 
   #   placement_constraints {
