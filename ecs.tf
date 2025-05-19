@@ -7,15 +7,6 @@ resource "aws_ecr_repository" "app_repo" {
   }
 }
 
-resource "aws_ecr_repository" "envoy_repo" {
-  name                 = "proxy"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
 resource "aws_ecs_cluster" "cluster" {
   name = "hello-fargate"
   setting {
@@ -46,33 +37,13 @@ resource "aws_ecs_task_definition" "my_task" {
       },
       portMappings = [
         {
-          hostPort      = 443,
+          hostPort      = 80,
           protocol      = "tcp",
-          containerPort = 443
+          containerPort = 8080
         }
       ],
-      cpu = 0,
-      environment = [
-        {
-          name  = "DNS_NAME",
-          value = "ecs-ss.awsblogs.info"
-        }
-      ],
-      image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy:latest",
-      name  = "envoy"
-    },
-
-    {
-      logConfiguration = {
-        logDriver = "awslogs",
-        options = {
-          awslogs-group         = "/ecs/ecs-self-signed",
-          awslogs-region        = "eu-west-2",
-          awslogs-stream-prefix = "ecs"
-        }
-      },
       cpu   = 0,
-      image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/app:latest"
+      image = "${var.aws_account_id}.dkr.ecr.eu-west-2.amazonaws.com/app:latest"
       name  = "service"
     }
   ])
@@ -101,8 +72,8 @@ resource "aws_ecs_service" "bar" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
-    container_name   = "envoy"
-    container_port   = 443
+    container_name   = "service"
+    container_port   = 8080
   }
 
   #   placement_constraints {

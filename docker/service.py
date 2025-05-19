@@ -17,7 +17,7 @@ def get_ip_address():
 @app.route('/service')
 def hello():
   ip_address = get_ip_address()
-  return (f'Hello from {ip_address}!! You have reached behind envoy proxy!\n')
+  return (f'Hello from {ip_address}!! The app was accessed via HTTP from the ALB to the backend task\n')
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=8080, debug=True)

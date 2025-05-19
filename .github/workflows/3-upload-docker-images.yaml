@@ -18,16 +18,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Download Certs from S3
-        run: |
-          cd docker
-          aws s3 cp s3://$S3_UTILS_BUCKET/certs/ ./certs/ --recursive
-          ls ./certs
-
       - name: Build Docker Images
         run: |
           cd docker
-          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/proxy -f Dockerfile-proxy .
           docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/app -f Dockerfile-app .
 
       - name: Configure AWS Credentials
@@ -44,5 +37,4 @@ jobs:
 
       - name: Push Docker Images to ECR
         run: |
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/proxy
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/app
