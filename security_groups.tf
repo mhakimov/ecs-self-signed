@@ -42,8 +42,8 @@ resource "aws_security_group" "ecs_security_group" {
   # }
 
   ingress {
-    from_port = local.http_port
-    to_port   = local.http_port
+    from_port = 8080
+    to_port   = 8080
     protocol  = local.tcp_protocol
     # cidr_blocks = local.all_ips
     security_groups = [aws_security_group.lb_sg.id]
