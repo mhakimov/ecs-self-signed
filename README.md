@@ -63,10 +63,16 @@ IaC project that encrypts traffic between a load balancer and ECS tasks using se
 
    ```bash
    openssl req -new -key my-aws-private.key -out my-aws.csr -config castore.cfg
-    The CSR (my-aws.csr) is what you'll send to a CA to be signed.
+
+The CSR (my-aws.csr) is what you'll send to a CA to be signed.
 
 5. **Use the CA to sign the CSR and issue a certificate:**
 
    ```bash
    openssl x509 -req -in my-aws.csr -CA castore.pem -CAkey castore.key -CAcreateserial  -out my-aws-public.crt -days 365
-    The resulting file, my-aws-public.crt, is the public certificate for your service, valid for 1 year. The command also generates a castore.srl file (serial number for tracking issued certs).
+
+The resulting file, my-aws-public.crt, is the public certificate for your service, valid for 1 year. The command also generates a castore.srl file (serial number for tracking issued certs).
+
+## How to Deploy this Infrastructure without Self-signed Certs
+
+Checkout 'unencrypted-traffic' branch and repeat the above steps.
