@@ -21,7 +21,7 @@ jobs:
 
       - name: Delete all images from ECR repositories
         run: |
-          for repo in proxy app; do
+          for repo in app; do
             echo "Deleting images in repository: $repo"
             
             image_ids=$(aws ecr list-images \

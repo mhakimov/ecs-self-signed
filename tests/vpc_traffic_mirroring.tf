@@ -21,8 +21,8 @@ resource "aws_ec2_traffic_mirror_filter_rule" "inbound_http" {
   traffic_direction        = "ingress"
   protocol                 = 6 # TCP
   destination_port_range {
-    from_port = 80
-    to_port   = 80
+    from_port = 8080
+    to_port   = 8080
   }
   source_port_range {
     from_port = 0
@@ -57,8 +57,8 @@ resource "aws_ec2_traffic_mirror_filter_rule" "outbound_http" {
   traffic_direction        = "egress"
   protocol                 = 6 # TCP
   source_port_range {
-    from_port = 80
-    to_port   = 80
+    from_port = 8080
+    to_port   = 8080
   }
   destination_port_range {
     from_port = 0

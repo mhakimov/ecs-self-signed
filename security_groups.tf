@@ -34,12 +34,12 @@ resource "aws_security_group" "ecs_security_group" {
   description = "security group for ecs"
   vpc_id      = aws_vpc.ecs_ss_vpc.id
 
-  # ingress {
-  #   from_port   = 22
-  #   to_port     = 22
-  #   protocol    = local.tcp_protocol
-  #   cidr_blocks = local.all_ips
-  # }
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = local.tcp_protocol
+    security_groups = [aws_security_group.lb_sg.id]
+  }
 
   ingress {
     from_port = 8080
