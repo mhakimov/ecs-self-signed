@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "my_task" {
         logDriver = "awslogs",
         options = {
           awslogs-group         = "/ecs/ecs-self-signed",
-          awslogs-region        = "eu-west-2",
+          awslogs-region        = "${var.aws_region}",
           awslogs-stream-prefix = "ecs"
         }
       },
@@ -55,10 +55,10 @@ resource "aws_ecs_task_definition" "my_task" {
       environment = [
         {
           name  = "DNS_NAME",
-          value = "ecs-ss.awsblogs.info"
+          value = "ecs-ss.m-computing.org"
         }
       ],
-      image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/proxy:latest",
+      image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/proxy:latest",
       name  = "envoy"
     },
 
@@ -67,12 +67,12 @@ resource "aws_ecs_task_definition" "my_task" {
         logDriver = "awslogs",
         options = {
           awslogs-group         = "/ecs/ecs-self-signed",
-          awslogs-region        = "eu-west-2",
+          awslogs-region        = "${var.aws_region}",
           awslogs-stream-prefix = "ecs"
         }
       },
       cpu   = 0,
-      image = "962768705974.dkr.ecr.eu-west-2.amazonaws.com/app:latest"
+      image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/app:latest"
       name  = "service"
     }
   ])
@@ -91,22 +91,10 @@ resource "aws_ecs_service" "bar" {
   }
   launch_type = "FARGATE"
 
-  #   iam_role        = aws_iam_role.foo.arn
-  #   depends_on      = [aws_iam_role_policy.foo]
-
-  #   ordered_placement_strategy {
-  #     type  = "binpack"
-  #     field = "cpu"
-  #   }
-
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
     container_name   = "envoy"
     container_port   = 443
   }
 
-  #   placement_constraints {
-  #     type       = "memberOf"
-  #     expression = "attribute:ecs.availability-zone in [us-west-2a, us-west-2b]"
-  #   }
 }

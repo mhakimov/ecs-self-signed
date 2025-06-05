@@ -13,3 +13,4 @@ variable "hosted_zone_id" {
 //TODO create env var
 variable "s3_bucket_utils" {}
 variable "my_ip" {}
+variable "aws_account_id" {}
