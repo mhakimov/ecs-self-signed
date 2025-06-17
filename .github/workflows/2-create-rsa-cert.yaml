@@ -54,7 +54,9 @@ jobs:
         cd docker/certs
 
         # openssl genrsa -out castore.key 2048
-        openssl genpkey -algorithm RSA -out castore.key -aes256 -pkeyopt rsa_keygen_bits:2048
+        # openssl genpkey -algorithm RSA -out castore.key -aes256 -pkeyopt rsa_keygen_bits:2048
+        openssl genpkey -algorithm RSA -out castore.key -pkeyopt rsa_keygen_bits:2048
+
 
         echo "list files: "
         ls
@@ -75,7 +77,9 @@ jobs:
         cd docker/certs
 
         # openssl genrsa -out my-aws-private.key 2048
-        openssl genpkey -algorithm RSA -out my-aws-private.key -aes256 -pkeyopt rsa_keygen_bits:2048
+        # openssl genpkey -algorithm RSA -out my-aws-private.key -aes256 -pkeyopt rsa_keygen_bits:2048
+        openssl genpkey -algorithm RSA -out my-aws-private.key -pkeyopt rsa_keygen_bits:2048
+
 
         echo "generate a new Certificate Signing Request using the private key provided"
         openssl req -new -key my-aws-private.key -out my-aws.csr -config castore.cfg
