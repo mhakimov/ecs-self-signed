@@ -17,7 +17,7 @@ resource "aws_ecr_repository" "envoy_repo" {
 }
 
 resource "aws_ecs_cluster" "cluster" {
-  name = "hello-fargate"
+  name = "ecs-ss-cluster"
   setting {
     name  = "containerInsights"
     value = "enabled"
@@ -25,8 +25,8 @@ resource "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_ecs_task_definition" "my_task" {
-  task_role_arn            = aws_iam_role.ecs_execution_role.arn
-  family                   = "sample-fargate"
+  # task_role_arn            = aws_iam_role.ecs_execution_role.arn
+  family                   = "ecs-ss-family"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
@@ -85,7 +85,7 @@ resource "aws_ecs_service" "bar" {
   task_definition = aws_ecs_task_definition.my_task.arn
   desired_count   = 2
   network_configuration {
-    subnets          = [aws_subnet.private_aza.id]
+    subnets          = [aws_subnet.private_aza.id, aws_subnet.private_azb.id]
     security_groups  = [aws_security_group.ecs_security_group.id]
     assign_public_ip = false
   }
