@@ -32,8 +32,8 @@ jobs:
         prompt = no ## Don't prompt for DN fields interactively — take them from the config file.
         [ req_distinguished_name ]
         C = UK
-        O = m-computing
-        OU = m-computing.org
+        O = M Computing
+        OU = DevOps
         CN = $MY_DOMAIN 
         emailAddress = $MY_EMAIL 
         [v3_ca]
@@ -53,7 +53,8 @@ jobs:
         echo "generate a new RSA private key and save it to a file named "castore.key" with a key length of 2048 bits."
         cd docker/certs
 
-        openssl genrsa -out castore.key 2048
+        # openssl genrsa -out castore.key 2048
+        openssl genpkey -algorithm RSA -out castore.key -pkeyopt rsa_keygen_bits:2048
         echo "list files: "
         ls
         # echo "castore.key content: "
@@ -64,7 +65,8 @@ jobs:
         echo "generate a self-signed X.509 certificate based on the provided private key castore.key and configuration castore.cfg with a validity period of 10 years. The resulting certificate is saved in the file castore.pem"
         cd docker/certs
 
-        openssl req -x509 -new -nodes -key castore.key -days 3650 -config castore.cfg -out castore.pem
+        # openssl req -x509 -new -nodes -key castore.key -days 3650 -config castore.cfg -out castore.pem
+        openssl req -x509 -new -nodes -key castore.key -days 3650 -config castore.cfg -extensions v3_ca -out castore.pem
         ls
         # cat castore.pem
 
@@ -72,7 +74,8 @@ jobs:
       run: |
         cd docker/certs
 
-        openssl genrsa -out my-aws-private.key 2048
+        # openssl genrsa -out my-aws-private.key 2048
+        openssl genpkey -algorithm RSA -out my-aws-private.key -pkeyopt rsa_keygen_bits:2048
 
         echo "generate a new Certificate Signing Request using the private key provided"
         openssl req -new -key my-aws-private.key -out my-aws.csr -config castore.cfg
@@ -80,12 +83,12 @@ jobs:
         echo "command takes a CSR (my-aws.csr), uses a CA (castore.pem and castore.key) to sign it, and outputs the resulting certificate (my-aws-public.crt) with a validity period of 365 days."
         openssl x509 -req -in my-aws.csr -CA castore.pem -CAkey castore.key -CAcreateserial -out my-aws-public.crt -days 365
 
-    - name: import certificate to ACM
-      run: |
-        cd docker/certs
-        ls
-        aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
-        aws acm list-certificates
+    # - name: import certificate to ACM
+    #   run: |
+    #     cd docker/certs
+    #     ls
+    #     aws acm import-certificate --certificate fileb://my-aws-public.crt --private-key fileb://my-aws-private.key --certificate-chain fileb://castore.pem
+    #     aws acm list-certificates
 
 #TODO: use env var instead
     - name: Upload certs to S3
