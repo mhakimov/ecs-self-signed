@@ -52,9 +52,9 @@ resource "aws_iam_instance_profile" "ssm_profile" {
   role = aws_iam_role.ssm_role.name
 }
 
-
 resource "aws_security_group" "traffic_mirror_target_sg" {
-  name        = "traffic-mirror-target-sg"
+#temp change to avoid conflict
+  name        = "traffic-mirror-target-sg2"
   description = "Security group for traffic mirroring target EC2 instance"
   vpc_id      = data.tfe_outputs.ecs_ss_outputs.nonsensitive_values.vpc_id
 
